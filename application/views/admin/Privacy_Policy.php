@@ -25,6 +25,7 @@
 }
 p {
     margin: 1px 1px 10px;
+	text-align: justify;
 }
 </style>
 </head>
@@ -37,7 +38,7 @@ p {
         <div class="row">
             <div class="col-lg-12 text-center">
                 <div class="navy-line"></div>
-                <h1><?php echo $privacy_policy[0]['title'];?></h1>
+            <h1><b><?php echo $privacy_policy[0]['title'];?></b></h1>
               
             </div>
         </div>

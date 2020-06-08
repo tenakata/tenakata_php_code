@@ -5,7 +5,7 @@ if ($this->session->userdata['email'] == TRUE)
 }
 else
 {
-    redirect('login_admin'); //if session is not there, redirect to login page
+    redirect('index.php/login_admin'); //if session is not there, redirect to login page
 }
    include('header.php');?>
   <?php include('sidebar.php');?>
@@ -34,7 +34,7 @@ else
                         <div class="ibox-title">
                             <h5>Add Bussiness </h5>
                             <div class="ibox-tools">
-                            <a href="<?= base_url('user_list');?>"><button class="float-right btn btn-md btn-primary">Show Bussiness List</button></a>
+                            <a href="<?= base_url('index.php/user_list');?>"><button class="float-right btn btn-md btn-primary">Show Bussiness List</button></a>
                               
                             </div>
                         </div>
@@ -48,7 +48,7 @@ else
                             }
                             ?>
                         <div class="ibox-content">
- <form method="POST" action="<?php echo base_url('add_user');?>"  class="form-horizontal" enctype="multipart/form-data" autocomplete="off">
+ <form method="POST" action="<?php echo base_url('index.php/add_user');?>"  class="form-horizontal" enctype="multipart/form-data" autocomplete="off">
                          <div class="form-group">
                          <div class="col-md-12"><label class="control-label">Bussiness Name</label></div>
                                    
@@ -362,6 +362,7 @@ else
                     </div>
                 </div>
             </div>
+
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="<?= base_url();?>assets/js/jquery-2.1.1.js"></script>

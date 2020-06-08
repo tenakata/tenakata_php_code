@@ -5,7 +5,7 @@ if ($this->session->userdata['email'] == TRUE)
         }
         else
         {
-            redirect('login_admin'); //if session is not there, redirect to login page
+            redirect('index.php/login_admin'); //if session is not there, redirect to login page
         }
    include('header.php');?>
   <?php include('sidebar.php');?>
@@ -34,17 +34,14 @@ if ($this->session->userdata['email'] == TRUE)
                             <h5>Change Password</h5>
                            
                         </div>
-                          <?php if($this->session->flashdata('message')){?>
-                         <div class="alert alert-success">
-                        <?php
-                            echo $this->session->flashdata('message');
-                        ?>
-                         </div>
-                        <?php
-                            }
-                            ?>
+                          <?php $msg = $this->session->userdata('message'); ?>
+            <?php if (isset($msg)): ?>
+                <div class="alert alert-success delete_msg pull" style="width: 100%"> <i class="fa fa-check-circle"></i> <?php echo $msg; ?> &nbsp;
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">×</span> </button>
+                </div>
+            <?php endif ?>
                         <div class="ibox-content">
-                         <form method="POST" id="myFormId" action="<?php echo base_url('change_password');?>"  class="form-horizontal">
+                         <form method="POST" id="myFormId" action="<?php echo base_url('index.php/change_password');?>"  class="form-horizontal">
 
                                 <div class="form-group"><label class="col-sm-2 control-label">Old Password</label>
                               <div class="col-md-5">
@@ -92,6 +89,12 @@ if ($this->session->userdata['email'] == TRUE)
     <?php include 'footer.php';?>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script type="text/javascript">
+        $( document ).ready(function(){
+           $('.delete_msg').delay(3000).slideUp();
+        });
+    </script>
+
 <script type="text/javascript">
     $(".toggle-password").click(function() {
 

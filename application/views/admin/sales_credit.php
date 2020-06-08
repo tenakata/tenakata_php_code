@@ -5,7 +5,7 @@ if ($this->session->userdata['email'] == TRUE)
         }
         else
         {
-            redirect('login_admin'); //if session is not there, redirect to login page
+            redirect('index.php/login_admin'); //if session is not there, redirect to login page
         }
    include('header.php');?>
    <style>
@@ -72,10 +72,10 @@ if ($this->session->userdata['email'] == TRUE)
                     <div class="btn-group btn-group-toggle">
                    
 
-                    <a href="<?php echo base_url();?>sales_cash"  class="btn btn-primary anchor ml-2" > Sales Cash List</a>&nbsp;&nbsp;&nbsp;&nbsp;
-                    <a href="<?php echo base_url();?>sales_credit"  class="btn btn-primary anchor active"> Sales Credit List</a>
+                    <a href="<?php echo base_url();?>index.php/sales_cash"  class="btn btn-primary anchor ml-2" > Sales Cash List</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a href="<?php echo base_url();?>index.php/sales_credit"  class="btn btn-primary anchor active"> Sales Credit List</a>
                 </div>
-                    <a href="<?= base_url('sales_credit_export');?>"><button class="float-right btn btn-md btn-success" style="float: right;">Export </button></a>
+                    <a href="<?= base_url('index.php/sales_credit_export');?>"><button class="float-right btn btn-md btn-success" style="float: right;">Export </button></a>
                     </div>
                     <div class="ibox-content">
 
@@ -84,16 +84,16 @@ if ($this->session->userdata['email'] == TRUE)
                     <thead>
                     <tr>
                         <th>S.NO</th>
-                        <th> Bussiness Name</th>
-                        <th>Date</th>
-                        <th>Amount</th>
-                        <th>Payment Type</th>
-                        <th>Sales Purchases</th>
-                        <th>Phone</th>
-                        <th>Id No</th>
-                        <th>Name</th>
-                        <th>Item List</th>
-                        <th>Attach Recepit</th>
+                        <th style="text-align: center;"> Bussiness Name</th>
+                        <th style="text-align: center;">Date</th>
+                        <th style="text-align: center;">Amount</th>
+                        <th style="text-align: center;">Payment Type</th>
+                        <th style="text-align: center;">Sales</th>
+                        <th style="text-align: center;">Phone</th>
+                        <th style="text-align: center;">Description</th>
+                        <th style="text-align: center;">Name</th>
+                        <th style="text-align: center;">Details List</th>
+                        <th style="text-align: center;">Attach Recepit</th>
                        
                     </tr>
                    
@@ -135,7 +135,12 @@ if ($this->session->userdata['email'] == TRUE)
             </div>
            
         </div>
-
+  <div class="footer">
+                    
+                    <div>
+                        <center><strong>Copyright Tenakata &copy; <?php echo date('Y');?> </strong></center>
+                    </div>
+                </div>
         <script src="<?= base_url();?>assets/js/jquery-2.1.1.js"></script>
     <script src="<?= base_url();?>assets/js/bootstrap.min.js"></script>
     <script src="<?= base_url();?>assets/js/plugins/metisMenu/jquery.metisMenu.js"></script>

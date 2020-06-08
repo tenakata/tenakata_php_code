@@ -1,14 +1,4 @@
-<div class="footer">
-                    
-                    <div>
-                        <center><strong>Copyright Tenakata &copy; 2020-2021 </strong></center>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        </div>
-    
       
         <div id="right-sidebar">
             <div class="sidebar-container">

@@ -26,7 +26,7 @@ public function login_post()
 	   $request = json_decode(file_get_contents('php://input'),true);
 	
 	   $this->form_validation->set_data($request); 
-	   $this->form_validation->set_rules('phone','Phone', 'required|regex_match[/^[0-9]{10}$/]');
+	   $this->form_validation->set_rules('phone','Phone', 'trim|required');
 	   $this->form_validation->set_rules('country_code','Country Code', 'trim|required');
 	   $this->form_validation->set_rules('role','Role', 'trim|required');
 	   $this->form_validation->set_rules('password','Password', 'trim|required|min_length[6]|min_length[6]');
@@ -43,14 +43,16 @@ public function login_post()
 	  }
 	  else
 	  {
-		 $phone = json_encode($request["phone"],JSON_NUMERIC_CHECK);
+		 $phone = json_encode($request["phone"]);
+      
+      	 $phone = trim($phone,'"');
 		 $country_code = json_encode($request["country_code"],JSON_NUMERIC_CHECK);
 		 $password = json_encode($request["password"],JSON_NUMERIC_CHECK);
 		 $role = json_encode($request["role"],JSON_NUMERIC_CHECK);
 		 $role = trim($role,'"');
 		 $password = trim($password,'"');
 		 $random_number = random_string('alnum',20);
-
+	
 		
 		  $login_data =[
 			  'phone' =>$phone,
@@ -59,6 +61,7 @@ public function login_post()
 			  'role' =>$role,
 			  'sessiontoken' =>$random_number
 			];
+      // print_r($login_data);die;
 			$login = $this->Book_model->logindata($login_data);
 			if(count($login) > 0 )
 			{
@@ -438,21 +441,24 @@ public function forget_password_post()
 				'public_id' => $result['upload_image']['public_id']
 				
 			);
-       		$mm = "Welcome to Tenakata Business Application It’s great to have you with us.Please click on the below link to Download and Install the application.";
-       $username = $name;
+       	    
+       		$mm = ucfirst($owner_name).' '."Karibu Tenakata.";
+       		$username = $name;
             $password = $password;
             $to = $phone;
-            $from = 'ECLECTICS';
-            $link = 'https://play.google.com/store/apps/details?id=com.tenakata';
+       		$phone = $country_code.''.$phone;
+            $from = 'Tenakata';
+       		$username = 'Tenakata';
+            $link = 'Click on the below link to Download and Install the application. \n https://play.google.com/store/apps/details?id=com.tenakata \n Ahsante! \n For Help Call 0728888863!';
 
-          	$message = 'Message : '.$mm.'\nUsername : '.$username.'\nOTP : '.$password.'\nRespective Application Link : '.$link;
-            $transactionID = "SMS_00007";
-            $clientid= "5094";
+            $message = ''.$mm.'\nUsername : '.$to.'\nPassword : '.$password.'\n '.$link;
+            $transactionID = "00007";
+            $clientid= "1062";
             $curl = curl_init();
-            
+            $password ="278b4fc4e6cc438b4fcf03f78c6f0909534dc4c270a762126c7bd45b09dde83a9ee74e92559a58d25793ac5a979ab7492e324d14acc0343e759abdce05c1ecf7";
             curl_setopt_array($curl, array(
-              CURLOPT_PORT => "8443",
-              CURLOPT_URL => "https://testgateway.ekenya.co.ke:8443/ServiceLayer/pgsms/send",
+              CURLOPT_PORT => "8095",
+              CURLOPT_URL => "https://eclecticsgateway.ekenya.co.ke:8095/ServiceLayer/pgsms/send",
               CURLOPT_RETURNTRANSFER => true,
               CURLOPT_ENCODING => "",
               CURLOPT_MAXREDIRS => 10,
@@ -461,29 +467,28 @@ public function forget_password_post()
               CURLOPT_CUSTOMREQUEST => "POST",
               CURLOPT_POSTFIELDS => "{\n\t\"to\":\"$phone\",\n\t\"message\":\"$message\",\n\t\"from\":\"$from\",\n\t\"transactionID\":\"$transactionID\",\n\t\"username\":\"$username\",\n\t\"password\":\"$password\",\n\t\"clientid\":\"$clientid\"\n}",
               CURLOPT_HTTPHEADER => array(
-                "cache-control: no-cache",
+               "cache-control: no-cache",
                 "content-type: application/json",
-                "postman-token: 109c0984-ae62-dd5e-58c9-605fa3f84124",
-                "token: iYq6BtuXGhOk9ECdaRmv",
+                "postman-token: 3a34b9f9-e3ec-75ed-07ad-bc1eab9c486f",
+                "token: LVwlhYsOteZ8c9TDRjBf",
                 "x-api-key: admin@123"
               ),
             ));
             
             $response = curl_exec($curl);
             $err = curl_error($curl);
-            
             curl_close($curl);
             
             if ($err) {
-              echo "cURL Error #:" . $err;
+              // echo "cURL Error #:" . $err;
             } else {
-              echo $response;
+            // echo $response;
             }
 			// print_r($signup);die;
 			$sign_up = $this->Book_model->sign_up($signup);
 			if($sign_up == true )
 			{
-				$merge = array_merge($signup,array("id"=>$sign_up));
+				 $merge = array_merge($signup,array("id"=>$sign_up));
 				   $data['status'] = '200';
 				   $data['message'] = 'Sign Up Successfully !!';
 				   $data['result'] = $merge;
@@ -517,8 +522,10 @@ public function dailysale_purchases_post()
 		$this->form_validation->set_rules('item_list','Item List', 'trim|required');
 		$this->form_validation->set_rules('payment_type','Payment Type', 'trim|required');
 		$this->form_validation->set_rules('sales_purchases','Sales Purchases', 'trim|required');
-		$this->form_validation->set_rules('name','Name', 'trim|required');
-
+    	
+    	
+	
+	
 		if($this->form_validation->run()==false)
 		{  
 				$datass = $this->form_validation->error_array();
@@ -532,24 +539,30 @@ public function dailysale_purchases_post()
 		else
 		{
 				$user_id = $this->input->post('user_id');
+        		$phone = $this->input->post('phone');
+       			$country_code = $this->input->post('country_code');
 				$name = $this->input->post('name');
 				$date = $this->input->post('date');
 				$amount = $this->input->post('amount');
 				$item_list = $this->input->post('item_list');
 				$payment_type = $this->input->post('payment_type');
+        		$id_no = $this->input->post('id_no');
 				$sales_purchases = $this->input->post('sales_purchases');
 				$filename = $_FILES['attach_recepit']['name'];
 				$tmp_name = $_FILES['attach_recepit']['tmp_name'];
 				$result['upload_image'] = \Cloudinary\Uploader::upload($tmp_name);
 
 			
-				$sales_purchases= array(
+				$sales_purchasess= array(
 					'business_user_id' => $_POST['user_id'],
 					'name' => $_POST['name'],
 					'amount' => $_POST['amount'],
 					'date' => $_POST['date'],
+                	'phone' => $_POST['phone'],
+              	    'country_code' => $_POST['country_code'],
 					'item_list' => $_POST['item_list'],
 					'payment_type' => $_POST['payment_type'],
+                	'id_no' => $_POST['id_no'],
 					'sales_purchases' => $_POST['sales_purchases'],
 					'attach_recepit' => $result['upload_image']['url'],
 					'public_id' => $result['upload_image']['public_id'],
@@ -557,13 +570,14 @@ public function dailysale_purchases_post()
 					'created_at' => date('Y-m-d')
 					
 				);
-				$sale_purchases = $this->Book_model->sale_purchases($sales_purchases);
+				$sale_purchases = $this->Book_model->sale_purchases($sales_purchasess);
+        		
 				if($sale_purchases == true )
 				{
 					
 					$data['status'] = '200';
-					$data['message'] = 'Cash Add  Successfully !!';
-					$data['result'] = $sales_purchases;
+					$data['message'] = 'Cash '.ucfirst($sales_purchases).' Added Successful ||';
+					$data['result'] = $sales_purchasess;
 					echo json_encode($data); 
 				}
 			
@@ -663,8 +677,8 @@ public function credit_sale_purchases_post()
 		$this->form_validation->set_rules('user_id','User Id', 'trim|required');
 		$this->form_validation->set_rules('date', 'Date', 'trim|required');
  		$this->form_validation->set_rules('amount','Amount', 'trim|required');
-		$this->form_validation->set_rules('name','Name', 'trim|required');
 		$this->form_validation->set_rules('phone','Phone', 'required');
+    	$this->form_validation->set_rules('country_code','Country Code', 'required');
 		$this->form_validation->set_rules('id_no','ID NO', 'trim|required');
 		$this->form_validation->set_rules('item_list','Item List', 'trim|required');
 		$this->form_validation->set_rules('payment_type','Payment Type', 'trim|required');
@@ -689,6 +703,7 @@ public function credit_sale_purchases_post()
 			$name = $this->input->post('name');
 			$id_no = $this->input->post('id_no');
 			$phone = $this->input->post('phone');
+        	$country_code = $this->input->post('country_code');
 			$item_list = $this->input->post('item_list');
 			$payment_type = $this->input->post('payment_type');
 			$sales_purchases = $this->input->post('sales_purchases');
@@ -704,6 +719,7 @@ public function credit_sale_purchases_post()
 					'name' => $_POST['name'],
 					'id_no' => $_POST['id_no'],
 					'phone' => $_POST['phone'],
+                	'country_code' => $_POST['country_code'],
 					'item_list' => $_POST['item_list'],
 					'payment_type' => $_POST['payment_type'],
 					'sales_purchases' => $_POST['sales_purchases'],
@@ -718,7 +734,7 @@ public function credit_sale_purchases_post()
 			{
 				$merge = array_merge($credit_sale_purchases,array("id"=>$credits_sale_purchases));
 				$data['status'] = '200';
-				$data['message'] = 'Credit Add  Successfully !!';
+				$data['message'] = 'Credit '.ucfirst($sales_purchases).' Added  Successfully !!';
 				$data['result'] = $merge;
 				echo json_encode($data); 
 			}
@@ -879,6 +895,7 @@ public function logout_post()
 
 public function home_post()
 {
+  error_reporting(E_ALL & ~E_NOTICE);
 	$token = $this->input->get_request_header('token');
 	$check_token = $this->Book_model->business_check_token1($token);
 	if($check_token > 0 )
@@ -914,27 +931,139 @@ public function home_post()
 			);
 			
 			$home = $this->Book_model->home_list($home_data);
-			$percentage = $home['percentage'];
-			$percentage = number_format($percentage, 2);
+        	
+        	$arrow_all = $home['prev_all'];
+			$arrow = $home['home']['cash_amount'] + $home['home']['credit_amount'];
+        
+        	
+       		if($arrow_all[0]['amount'] != '0' && $arrow_all[1]['amount'] != '0')
+             {
+                   $prev1 = $arrow_all[0]['amount'];
+        		   $prev2 = $arrow_all[1]['amount'];
+             }
+           	else
+              {
+                   $prev1 = '0';
+            	   $prev2 = '0';
+                    	
+              }
 			
+				$p_cash_amount = ($home['home']['cash_amount'] + $home['home']['credit_amount'])/2;
+        		
 				$c= count($home)-2;
 				$amount = $home['home']['cash_amount'];
+        		
 				$credit_amount = $home['home']['credit_amount'];
+        	
 				$total = $amount+$credit_amount;
 				$average = $total / $c;
 				$av = strval($average);
 				
-			
-			
+			   if($prev1 >= $prev2)
+                    {
+                         $arraow ="true";
+               			 if($filter == 'year')
+       					 {
+        					$total_num = ($prev1*100);
+       					 }
+        				else
+       					 {
+							if($prev1 !='0' && $prev1 !='' && $prev2 != '0' && $prev2 != '')
+    						{
+      							$total_num = ($prev1*100)/$prev2;
+    						}
+    						else
+    						{
+    							$total_num = '0';
+   							 }
+        				}
+     		 				if($total_num != '0')
+      					{
+       							 $per = $total_num-100;
+        						$pp = number_format($per , 2); 
+      					}
+      					else
+      					 {
+         		 			$pp = '0';
+      		 		}	
+                    }
+                    else
+                    {
+                        $arraow ="false";
+                    	 if($filter == 'year')
+        				{
+        					$total_num = ($prev1*100);
+        				}
+        				else
+        				{
+							if($prev1 !='0' && $prev1 !='' && $prev2 != '0' && $prev2 != '')
+    						{
+      							$total_num = ($prev2*100)/$prev1;
+    						}
+    						else
+    						{
+    							$total_num = '0';
+   							 }
+        					}
+     						 if($total_num != '0')
+      						{
+       							 $per = $total_num-100;
+        						 $pp = number_format($per , 2); 
+      						}
+      						else
+      						 {
+         						 $pp = '0';
+      		 				}	
+                    }
+        
+//         	$total_num = $prev1+$prev2;
+        	
+//         	if($total_num != '0')
+//         	{
+//         	$per = ($prev1/$total_num)*100;
+//         	// echo $per;die;
+//         		$pp = number_format($per , 2); 
+//         	}
+//         	else
+//         	{
+//         	$pp = '0';
+//  
+//         	       	}
 	
+//         if($filter == 'year')
+//         {
+//         	$total_num = ($prev1*100);
+//         }
+//         else
+//         {
+// 			if($prev1 !='0' && $prev1 !='' && $prev2 != '0' && $prev2 != '')
+//     		{
+//       			$total_num = ($prev2*100)/$prev1;
+//     		}
+//     		else
+//     		{
+//     			$total_num = '0';
+//    			 }
+//         }
+//      		 if($total_num != '0')
+//       		{
+//        			 $per = $total_num-100;
+//         		$pp = number_format($per , 2); 
+//       		}
+//       		else
+//       		 {
+//          		 $pp = '0';
+//       		 }	
+        
+        	
 			if($home == true)
 			{
 				$data['status'] = '200';
 				$data['message'] = 'Show  list !!';
 				$data['result'] = $home['home'];
-				$data['total_average'] = $av;
-				$data['percentage'] = $percentage;
-				$data['arraow'] = $home['arraow'];
+				$data['total_average'] = $p_cash_amount;
+				$data['percentage'] = $pp;
+				$data['arraow'] = $arraow;
 				$data['total'] = $total;
 				$data['name'] = $home['name'];
 				echo json_encode($data); 
@@ -1106,7 +1235,6 @@ public function remind_post()
 			$request = json_decode(file_get_contents('php://input'),true);
 			$this->form_validation->set_data($request); 
 			$this->form_validation->set_rules('transaction_id','transaction Id', 'trim|required');
-			$this->form_validation->set_rules('message','Message', 'trim|required');
 			$this->form_validation->set_rules('sales_purchases','Sales Purchases', 'trim|required');
 
 		if($this->form_validation->run()==false)
@@ -1134,11 +1262,73 @@ public function remind_post()
 				'updated_at' => date('Y-m-d H:m:i')
 				
 			);
+        	
+       		$check_id = $this->Book_model->check_id($transaction_id);
+        	
+        	if($check_id > 0 )
+            {
+            	$sms= $this->Book_model->check_sms($transaction_id);
+            }
+        	else
+            {
+            	$sms= $this->Book_model->sms($transaction_id);
+            }
+        
+        	// print_r($sms);die;
+        	
+        	
+            $message = $sms['query'][0]['message'];
+        	$phone = $sms['query2'][0]['phone'];
+        	$country_code = $sms['query2'][0]['country_code'];
+        	
+        	// echo $country_code;die;
+            $mm = $message;
+            $to = $phone;
+       		$phone  = $country_code.''.$phone;
+             $from = 'Tenakata';
+       		$username = 'Tenakata';
+            // $link = ' This is to remind you that you owe'." ".$bissiness_name." , ".$bussiness_phone." , ".$amount ." ".'for purchases done on'. " ".$date." ".'Please pay up. Thank you.Powered by Tenakata!For Help Call 0728888863!' ;
+
+            $message = $mm;
+            $transactionID = "00007";
+            $clientid= "1062";
+            $curl = curl_init();
+            $password ="278b4fc4e6cc438b4fcf03f78c6f0909534dc4c270a762126c7bd45b09dde83a9ee74e92559a58d25793ac5a979ab7492e324d14acc0343e759abdce05c1ecf7";
+            curl_setopt_array($curl, array(
+              CURLOPT_PORT => "8095",
+              CURLOPT_URL => "https://eclecticsgateway.ekenya.co.ke:8095/ServiceLayer/pgsms/send",
+              CURLOPT_RETURNTRANSFER => true,
+              CURLOPT_ENCODING => "",
+              CURLOPT_MAXREDIRS => 10,
+              CURLOPT_TIMEOUT => 30,
+              CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+              CURLOPT_CUSTOMREQUEST => "POST",
+              CURLOPT_POSTFIELDS => "{\n\t\"to\":\"$phone\",\n\t\"message\":\"$message\",\n\t\"from\":\"$from\",\n\t\"transactionID\":\"$transactionID\",\n\t\"username\":\"$username\",\n\t\"password\":\"$password\",\n\t\"clientid\":\"$clientid\"\n}",
+              CURLOPT_HTTPHEADER => array(
+               "cache-control: no-cache",
+                "content-type: application/json",
+                "postman-token: 3a34b9f9-e3ec-75ed-07ad-bc1eab9c486f",
+                "token: LVwlhYsOteZ8c9TDRjBf",
+                "x-api-key: admin@123"
+              ),
+            ));
+            
+            $response = curl_exec($curl);
+            $err = curl_error($curl);
+            
+            curl_close($curl);
+            
+            if ($err) {
+              // echo "cURL Error #:" . $err;
+            } else {
+             // echo $response;
+            }
+       
 			$reminds = $this->Book_model->remind($remind);
 			if($reminds == true)
 			{
 			    $data['status'] = '200';
-				$data['message'] = 'Remind Successfully!!';
+				$data['message'] = 'Remind Add Successfully!!';
 				$data['result'] = $remind;
 				echo json_encode($data); 
 			}
@@ -1611,7 +1801,7 @@ public function profile_post()
 			{
 				$profile= array(
 					'id' => $_POST['user_id'],
-					'name' => $_POST['name'],
+					'owner_name' => $_POST['name'],
 					'email' => $_POST['email'],
 					'role' => $_POST['role'],
 					'updated_at' => date('Y-m-d H:m:i')
@@ -1625,7 +1815,7 @@ public function profile_post()
 				$result['upload_image'] = \Cloudinary\Uploader::upload($tmp_name);
 				$profile= array(
 					'id' => $_POST['user_id'],
-					'name' => $_POST['name'],
+					'owner_name' => $_POST['name'],
 					'email' => $_POST['email'],
 					'role' => $_POST['role'],
 					'image' => $result['upload_image']['url'],
@@ -1943,4 +2133,146 @@ public function check_validation_post()
 	}
 }
 
+
+	public function otp_post()
+    {
+    	$request = json_decode(file_get_contents('php://input'),true);
+		$this->form_validation->set_data($request); 
+	   	$this->form_validation->set_rules('phone','Phone', 'trim|required');
+	   	$this->form_validation->set_rules('country_code','Country Code', 'trim|required');
+	    $this->form_validation->set_rules('role','Role', 'trim|required');
+		
+	  if($this->form_validation->run()==false)
+	  {  
+			$datass = $this->form_validation->error_array();
+			foreach($datass as $valid)
+			{	
+				$data['status'] = '400';
+				$data['message'] = $valid;
+			}
+			echo json_encode($data);
+	  }
+	  else
+	  {
+		 $phone = json_encode($request["phone"],JSON_NUMERIC_CHECK);
+		 $country_code = json_encode($request["country_code"],JSON_NUMERIC_CHECK);
+		 $role = json_encode($request["role"],JSON_NUMERIC_CHECK);
+		 $role = trim($role,'"');
+		
+		  $check_phone = $this->Book_model->check_phone_no($phone,$role,$country_code);
+      	  if($check_phone > 0 )
+		  {
+          	 $fourdigitrandom = rand(1000,9999); 
+
+            $to = $phone;
+       		$phone1  = $country_code.''.$phone;
+            $from = 'Tenakata';
+       		$username = 'Tenakata';
+           
+			
+            $message =  $fourdigitrandom;
+            $transactionID = "00007";
+            $clientid= "1062";
+            $curl = curl_init();
+            $password ="278b4fc4e6cc438b4fcf03f78c6f0909534dc4c270a762126c7bd45b09dde83a9ee74e92559a58d25793ac5a979ab7492e324d14acc0343e759abdce05c1ecf7";
+            curl_setopt_array($curl, array(
+              CURLOPT_PORT => "8095",
+              CURLOPT_URL => "https://eclecticsgateway.ekenya.co.ke:8095/ServiceLayer/pgsms/send",
+              CURLOPT_RETURNTRANSFER => true,
+              CURLOPT_ENCODING => "",
+              CURLOPT_MAXREDIRS => 10,
+              CURLOPT_TIMEOUT => 30,
+              CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+              CURLOPT_CUSTOMREQUEST => "POST",
+              CURLOPT_POSTFIELDS => "{\n\t\"to\":\"$phone1\",\n\t\"message\":\"$message\",\n\t\"from\":\"$from\",\n\t\"transactionID\":\"$transactionID\",\n\t\"username\":\"$username\",\n\t\"password\":\"$password\",\n\t\"clientid\":\"$clientid\"\n}",
+              CURLOPT_HTTPHEADER => array(
+               "cache-control: no-cache",
+                "content-type: application/json",
+                "postman-token: 3a34b9f9-e3ec-75ed-07ad-bc1eab9c486f",
+                "token: LVwlhYsOteZ8c9TDRjBf",
+                "x-api-key: admin@123"
+              ),
+            ));
+            
+            $response = curl_exec($curl);
+            $err = curl_error($curl);
+            
+            curl_close($curl);
+            
+            if ($err) {
+              // echo "cURL Error #:" . $err;
+            } else {
+             // echo $response;
+            }
+          
+      	$update_otp = $this->Book_model->update_otp($phone,$role,$country_code,$fourdigitrandom);
+      	if($update_otp == true)
+		{
+
+				$data['status'] = '200';
+				$data['message'] = 'Show Otp!!';
+				$data['otp'] = $fourdigitrandom;
+				echo json_encode($data); 
+			}
+			else
+			{
+				$data['status'] = '400';
+				$data['message'] = "Some Error !!";
+				echo json_encode($data); 
+			}
+          
+      }
+      	else
+        {
+        	$data['status'] = '400';
+	   		$data['message'] = 'Phone Number not register';
+	   		echo json_encode($data); 
+        }
+      }
+			
+    }
+
+
+
+public function check_otp_post()
+ {
+    	$request = json_decode(file_get_contents('php://input'),true);
+		$this->form_validation->set_data($request); 
+	   	$this->form_validation->set_rules('otp','OTP', 'trim|required');
+	    $this->form_validation->set_rules('role','Role', 'trim|required');
+		
+	  if($this->form_validation->run()==false)
+	  {  
+			$datass = $this->form_validation->error_array();
+			foreach($datass as $valid)
+			{	
+				$data['status'] = '400';
+				$data['message'] = $valid;
+			}
+			echo json_encode($data);
+	  }
+	  else
+	  {
+		 $otp = json_encode($request["otp"],JSON_NUMERIC_CHECK);
+		 $role = json_encode($request["role"],JSON_NUMERIC_CHECK);
+		 $role = trim($role,'"');
+		
+		  $check_otp = $this->Book_model->check_otp($otp,$role);
+      	  if($check_otp > 0 )
+		  {
+          	 
+      		$data['status'] = '200';
+	   		$data['message'] = 'Valid Otp';
+	   		echo json_encode($data); 
+          
+      	  }
+      	else
+        {
+        	$data['status'] = '400';
+	   		$data['message'] = 'Invalid Otp';
+	   		echo json_encode($data); 
+        }
+      }
+			
+    }
 }

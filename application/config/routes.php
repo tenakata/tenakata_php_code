@@ -48,6 +48,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 |
 | Examples:	my-controller/index	-> my_controller/index
 |		my-controller/my-method	-> my_controller/my_method
+
 */
 $route['default_controller'] = 'Book';
 $route['404_override'] = '';
@@ -89,6 +90,9 @@ $route['training_rating'] ='Book/training_rating';
 
 $route['filter'] = 'Book/filter';
 $route['check_validation'] = 'Book/check_validation';
+
+$route['otp'] = 'Book/otp';
+$route['check_otp'] = 'Book/check_otp';
 //-------------------------------------------------------------------------
 //-------------------------------------------------------------------------
 
@@ -105,6 +109,7 @@ $route['change_password'] = 'Admin/change_password';
 $route['supervisor'] ='Admin/supervisor';
 $route['add_supervisor'] = 'Admin/add_supervisor';
 $route['supervisor_list'] = 'Admin/supervisor_list';
+$route['supervisor_all_list'] = 'Admin/supervisor_all_list';
 $route['view_supervisor/(:any)'] = 'Admin/view_supervisor/$1';
 $route['update_supervisor'] = 'Admin/update_supervisor';
 $route['supervisor_password/(:any)'] = 'Admin/supervisor_password/$1';
@@ -122,6 +127,7 @@ $route['user'] = 'Admin/user';
 $route['user_list/(:any)'] = 'Admin/user_list/$1';
 $route['add_user'] = 'Admin/add_user';
 $route['user_list'] = 'Admin/user_list';
+$route['user_delete_list'] = 'Admin/user_delete_list';
 $route['assign_user/(:any)'] = 'Admin/assign_user/$1';
 $route['update_assign_user'] = 'Admin/update_assign_user';
 $route['user_export'] = 'Admin/user_export';
@@ -146,4 +152,8 @@ $route['terms_conditions'] = 'Admin/terms_conditions';
 $route['add_terms_conditions'] = 'Admin/add_terms_conditions';
 $route['Privacy_Policy'] = 'Admin/Privacy_Policys';
 $route['Terms_Conditions'] = 'Admin/Terms_Conditionss';
+$route['admin_profile'] = 'Admin/admin_profile';
+$route['updateProfile'] = 'Admin/updateProfile';
+
+
  

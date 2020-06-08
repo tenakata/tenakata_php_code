@@ -5,7 +5,7 @@ if ($this->session->userdata['email'] == TRUE)
         }
         else
         {
-            redirect('login_admin'); //if session is not there, redirect to login page
+            redirect('index.php/login_admin'); //if session is not there, redirect to login page
         }
    include('header.php');?>
   <?php include('sidebar.php');?>
@@ -33,23 +33,20 @@ if ($this->session->userdata['email'] == TRUE)
                         <div class="ibox-title">
                             <h5>Add Supervisor</h5>
                             <div class="ibox-tools">
-                            <a href="<?= base_url('supervisor_list');?>"><button class="float-right btn btn-md btn-primary">Show Supervisor List</button></a>
+                            <a href="<?= base_url('index.php/supervisor_list');?>"><button class="float-right btn btn-md btn-primary">Show Supervisor List</button></a>
                               
                             </div>
                         </div>
-                          <?php if($this->session->flashdata('message')){?>
-                         <div class="alert alert-success">
-                        <?php
-                            echo $this->session->flashdata('message');
-                        ?>
-                         </div>
-                        <?php
-                            }
-                            ?>
+                           <?php $msg = $this->session->userdata('message'); ?>
+            <?php if (isset($msg)): ?>
+                <div class="alert alert-success delete_msg pull" style="width: 100%"> <i class="fa fa-check-circle"></i> <?php echo $msg; ?> &nbsp;
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">×</span> </button>
+                </div>
+            <?php endif ?>
                         <div class="ibox-content">
                        
                         
-                         <form method="POST" action="<?php echo base_url('add_supervisor');?>"  class="form-horizontal" enctype="multipart/form-data" autocomplete="off">
+                         <form method="POST" action="<?php echo base_url('index.php/add_supervisor');?>"  class="form-horizontal" enctype="multipart/form-data" autocomplete="off">
 
                               
        
@@ -147,8 +144,22 @@ if ($this->session->userdata['email'] == TRUE)
                           
                         </div>
                     </div>
+                    </div>
                 </div>
             </div>
+</div>
+                <div class="footer">
+                    
+                    <div>
+                        <center><strong>Copyright Tenakata &copy; <?php echo date('Y');?> </strong></center>
+                    </div>
+                </div>
     <?php include 'footer.php';?>
+                <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script type="text/javascript">
+        $( document ).ready(function(){
+           $('.delete_msg').delay(3000).slideUp();
+        });
+    </script>
 
     

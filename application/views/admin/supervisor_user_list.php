@@ -5,7 +5,7 @@ if ($this->session->userdata['email'] == TRUE)
         }
         else
         {
-            redirect('login_admin'); //if session is not there, redirect to login page
+            redirect('index.php/login_admin'); //if session is not there, redirect to login page
         }
    include('header.php');?>
   <?php include('sidebar.php');?>
@@ -38,7 +38,7 @@ if ($this->session->userdata['email'] == TRUE)
 
                 </div>
                 <div class="ibox-tools">
-                   <a href="<?= base_url('supervisor_list');?>"><button class="float-right btn btn-md btn-primary">Supervisor List</button></a>
+                   <a href="<?= base_url('index.php/supervisor_list');?>"><button class="float-right btn btn-md btn-primary">Supervisor List</button></a>
                               
               </div>
             </div>
@@ -96,7 +96,7 @@ if ($this->session->userdata['email'] == TRUE)
                     <?php
                     $i=1;
                     foreach($supervisor_user_list as $row){
-                       
+                       $enc_charges_id = str_replace("/","-",$this->encryption->encrypt($row['id']));
                        ?>
                     <tr class="gradeX">
                     <td><input type="checkbox" class="bulkdata" value="<?php echo $row['id'];?>" name="selectvalue"/></td>
@@ -127,7 +127,7 @@ if ($this->session->userdata['email'] == TRUE)
                     <td><?php echo $row['role'];?> </td>
                     <td><?php echo $row['superwiser_name'];?> </td>
                    <td><img src="<?php echo $row['image'];?>" width="40" height="30"> </td>
-                   <td> <a href="<?php  echo base_url().'assign_user/'.$row['id']?>"><button type="button" class="btn btn-outline btn-success"><i class="fa fa-edit"></i>Assign</button></a>&nbsp;&nbsp;</td>
+                   <td> <a href="<?php  echo base_url().'index.php/assign_user/'. $enc_charges_id?>"><button type="button" class="btn btn-outline btn-success"><i class="fa fa-edit"></i>Assign</button></a>&nbsp;&nbsp;</td>
                       
                      
                      </tr>
@@ -162,7 +162,7 @@ if ($this->session->userdata['email'] == TRUE)
         </button>
       </div>
       <div class="modal-body">
-      <form method="POST" action="<?php echo base_url('update_assign_users');?>"  class="form-horizontal" enctype="multipart/form-data" autocomplete="off">
+      <form method="POST" action="<?php echo base_url('index.php/update_assign_users');?>"  class="form-horizontal" enctype="multipart/form-data" autocomplete="off">
             
                      
                 <div class="form-group">

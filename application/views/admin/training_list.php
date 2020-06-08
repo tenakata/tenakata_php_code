@@ -5,7 +5,7 @@ if ($this->session->userdata['email'] == TRUE)
         }
         else
         {
-            redirect('login_admin'); //if session is not there, redirect to login page
+            redirect('index.php/login_admin'); //if session is not there, redirect to login page
         }
    include('header.php');?>
   <?php include('sidebar.php');?>
@@ -14,7 +14,7 @@ if ($this->session->userdata['email'] == TRUE)
                     <h2>Training List</h2>
                     <ol class="breadcrumb">
                         <li>
-                            <a href="<?php echo base_url("supervisor");?>">Training</a>
+                            <a href="<?php echo base_url("index.php/supervisor");?>">Training</a>
                         </li>
                         
                         <li class="active">
@@ -26,7 +26,7 @@ if ($this->session->userdata['email'] == TRUE)
 
                 </div>
                 <div class="ibox-tools">
-                            <a href="<?= base_url('trainings');?>"><button class="float-right btn btn-md btn-primary">Add Training </button></a>
+                            <a href="<?= base_url('index.php/trainings');?>"><button class="float-right btn btn-md btn-primary">Add Training </button></a>
                               
                             </div>
             </div>
@@ -45,12 +45,12 @@ if ($this->session->userdata['email'] == TRUE)
                     <thead>
                     <tr>
                         <th>S.NO</th>
-                        <th>Title</th>
-                        <th>Description</th>
-                        <th>Role</th>
-                        <th>Rating</th>
-                        <th>Video</th>
-                        <th>Action</th>
+                        <th style="text-align: center;">Title</th>
+                        <th style="text-align: center;">Description</th>
+                        <th style="text-align: center;">Role</th>
+                        <th style="text-align: center;">Rating</th>
+                        <th style="text-align: center;">Video</th>
+                        <th style="text-align: center;">Action</th>
                        
                     </tr>
                    
@@ -68,11 +68,11 @@ if ($this->session->userdata['email'] == TRUE)
                     <td style="text-align: center;"><?php echo $row['description'];?> </td>
                     <td style="text-align: center;"><?php echo $row['role'];?> </td>
                     <td style="text-align: center;"><?php echo $row['rating'];?> </td>
-                    <td style="text-align: center;"><video width="20" height="40" controls>
-	<source src="upload/<?php echo $row['video']; ?>" type="video/mp4">
-	</video> </td>
-    <td style="text-align: center;">
-                           <a href="<?php  echo base_url().'view_training/'.$row['id']?>"><button type="button" class="btn btn-outline btn-warning"><i class="fa fa-edit"></i> Edit</button></a>
+                    <td style="text-align: center;"><video width="20" height="40" controls >
+					<source src="upload/<?php echo $row['video']; ?>" type="video/mp4">
+					</video> </td>
+   					 <td style="text-align: center;">
+                           <a href="<?php  echo base_url().'index.php/view_training/'.$row['id']?>"><button type="button" class="btn btn-outline btn-warning"><i class="fa fa-edit"></i> Edit</button></a>
                          &nbsp;&nbsp;
                         
                       
@@ -95,7 +95,12 @@ if ($this->session->userdata['email'] == TRUE)
             </div>
            
         </div>
-
+  <div class="footer">
+                    
+                    <div>
+                        <center><strong>Copyright Tenakata &copy; <?php echo date('Y');?> </strong></center>
+                    </div>
+                </div>
         <script src="<?= base_url();?>assets/js/jquery-2.1.1.js"></script>
     <script src="<?= base_url();?>assets/js/bootstrap.min.js"></script>
     <script src="<?= base_url();?>assets/js/plugins/metisMenu/jquery.metisMenu.js"></script>
@@ -193,7 +198,7 @@ if ($this->session->userdata['email'] == TRUE)
                 var id =$(this).attr("id");
                 if(confirm("Are you sure to Remove record?"))
                 {
-                    window.location="<?php echo base_url();?>Admin/Delete_training/"+id;
+                    window.location="<?php echo base_url();?>index.php/Admin/Delete_training/"+id;
                 }
                 else
                 {

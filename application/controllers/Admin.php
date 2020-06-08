@@ -37,13 +37,13 @@ class Admin extends CI_Controller {
 	}
 	public function admin_login()
    	{
-
+		
        $this->form_validation->set_error_delimiters('<div class="err">', '</div>');
        $this->form_validation->set_rules('email', ' Email', 'trim|required');
        $this->form_validation->set_rules('password', 'Password', 'trim|required|min_length[5]|min_length[5]');
        if ($this->form_validation->run() == True) 
        {
-        $this->load->library('form_validation');
+      	    $this->load->library('form_validation');
             $email    = html_escape(trim($this->input->post('email', TRUE)));
             $password = html_escape(trim(md5($this->input->post('password', TRUE))));
             $data     = array(
@@ -53,12 +53,15 @@ class Admin extends CI_Controller {
             // var_dump($data);die;
             $this->load->model('Login_model');
             $result   = $this->Login_model->logindata($data);
-
+		
         if (!empty($result)) 
         {
             $this->session->set_userdata("email", $result['email']);
+        	$this->session->set_userdata("fname", $result['fname']);
+            $this->session->set_userdata("lname", $result['lname']);
+        	 $this->session->set_userdata("image", $result['image']);
             $this->session->set_flashdata('message', 'Login Successfully');
-            redirect('/dashboard');
+            redirect('index.php/dashboard');
         } 
         else 
         {
@@ -150,7 +153,7 @@ class Admin extends CI_Controller {
        $this->form_validation->set_error_delimiters('<div class="err">', '</div>');
        $this->form_validation->set_rules('name', 'Name', 'trim|required');
        $this->form_validation->set_rules('email', 'email', 'trim|required');
-       $this->form_validation->set_rules('phone', 'Phone', 'trim|required|is_unique[business_register.phone]');
+       $this->form_validation->set_rules('phone', 'Phone', 'trim|required|is_unique[superwiser_register.phone]');
        $this->form_validation->set_rules('country_code', 'Country Code', 'trim|required');
        $this->form_validation->set_rules('password', 'Password', 'trim|required');
        $this->form_validation->set_rules('image', 'Image', 'callback_file_selected_image');
@@ -184,22 +187,25 @@ class Admin extends CI_Controller {
                 
             );
            
-            
-           	$mm = "Welcome to Tenakata Supervisor Application It’s great to have you with us. Please click on the below link to Download and Install the application.";
+           
+       
+           	$mm = ucfirst($name).' '."Karibu Tenakata";
             $username = $name;
             $password = $password;
             $to = $phone;
-            $from = 'ECLECTICS';
-            $link = 'https://play.google.com/store/apps/details?id=com.tenakatasupervisor';
+       		$phone  = $country_code.''.$phone;
+             $from = 'Tenakata';
+       		$username = 'Tenakata';
+            $link = 'Click on the below link to Download and Install the application. \n https://play.google.com/store/apps/details?id=com.tenakatasupervisor.\n Ahsante!  \n For Help Call 0728888863!';
 
-            $message = 'Message : '.$mm.'\nUsername : '.$username.'\nOTP : '.$password.'\nRespective Application Link : '.$link;
-            $transactionID = "SMS_00007";
-            $clientid= "5094";
+            $message = ''.$mm.'\nLogin : '.$to.'\nPassword : '.$password.'\n '.$link;
+            $transactionID = "00007";
+            $clientid= "1062";
             $curl = curl_init();
-            
+            $password ="278b4fc4e6cc438b4fcf03f78c6f0909534dc4c270a762126c7bd45b09dde83a9ee74e92559a58d25793ac5a979ab7492e324d14acc0343e759abdce05c1ecf7";
             curl_setopt_array($curl, array(
-              CURLOPT_PORT => "8443",
-              CURLOPT_URL => "https://testgateway.ekenya.co.ke:8443/ServiceLayer/pgsms/send",
+              CURLOPT_PORT => "8095",
+              CURLOPT_URL => "https://eclecticsgateway.ekenya.co.ke:8095/ServiceLayer/pgsms/send",
               CURLOPT_RETURNTRANSFER => true,
               CURLOPT_ENCODING => "",
               CURLOPT_MAXREDIRS => 10,
@@ -208,10 +214,10 @@ class Admin extends CI_Controller {
               CURLOPT_CUSTOMREQUEST => "POST",
               CURLOPT_POSTFIELDS => "{\n\t\"to\":\"$phone\",\n\t\"message\":\"$message\",\n\t\"from\":\"$from\",\n\t\"transactionID\":\"$transactionID\",\n\t\"username\":\"$username\",\n\t\"password\":\"$password\",\n\t\"clientid\":\"$clientid\"\n}",
               CURLOPT_HTTPHEADER => array(
-                "cache-control: no-cache",
+               "cache-control: no-cache",
                 "content-type: application/json",
-                "postman-token: 109c0984-ae62-dd5e-58c9-605fa3f84124",
-                "token: iYq6BtuXGhOk9ECdaRmv",
+                "postman-token: 3a34b9f9-e3ec-75ed-07ad-bc1eab9c486f",
+                "token: LVwlhYsOteZ8c9TDRjBf",
                 "x-api-key: admin@123"
               ),
             ));
@@ -222,15 +228,16 @@ class Admin extends CI_Controller {
             curl_close($curl);
             
             if ($err) {
-              echo "cURL Error #:" . $err;
+              // echo "cURL Error #:" . $err;
             } else {
-              echo $response;
+             // echo $response;
             }
+
             $result   = $this->Login_model->supervisor($data);
             if (!empty($result)) 
             {
                 $this->session->set_flashdata('message', 'Supervisor Add Successfully');
-                redirect('supervisor');
+                redirect('index.php/supervisor');
             } 
             else 
             {
@@ -270,6 +277,9 @@ class Admin extends CI_Controller {
     }
     public function view_supervisor($id)
     {
+    	 $str  = str_replace('-', '/', $id);
+         $id  = $this->encryption->decrypt($str);
+    	
          $this->load->model('Login_model');
          $data['count_bussiness_visit'] = $this->Login_model->count_bussiness_visit();
          $data['bussiness_visit_lists'] = $this->Login_model->bussiness_visit_lists();
@@ -299,7 +309,7 @@ class Admin extends CI_Controller {
                 $this->load->model('Login_model');
                 $this->Login_model->update_with_out_image_supervisor($data);
                 $this->session->set_flashdata('message', 'Supervisor Update Successfully');
-                redirect('supervisor_list');
+                redirect('index.php/supervisor_list');
                 
             } else {
 
@@ -323,12 +333,12 @@ class Admin extends CI_Controller {
                 $res = $this->Login_model->update_with_image_supervisor($data);
                 if ($res == true) {
                     $this->session->set_flashdata('message', 'Supervisor Update Successfully');
-                    redirect('supervisor_list');
+                    redirect('index.php/supervisor_list');
                 }
                 else 
                 {
                     $this->session->set_flashdata('message', 'Some Error');
-                    redirect('supervisor_list');
+                    redirect('index.php/supervisor_list');
                 }
             }
        
@@ -336,6 +346,9 @@ class Admin extends CI_Controller {
 
     public function supervisor_password($id)
     {
+    	$str  = str_replace('-', '/', $id);
+        $id  = $this->encryption->decrypt($str);
+    
         $this->load->model('Login_model');
         $data['count_bussiness_visit'] = $this->Login_model->count_bussiness_visit();
          $data['bussiness_visit_lists'] = $this->Login_model->bussiness_visit_lists();
@@ -345,28 +358,76 @@ class Admin extends CI_Controller {
         $this->load->view('admin/supervisor_password',$data);
         
     }
+	public function Delete_supervisor_all($id)
+    {
+        $this->load->model('Login_model');
+        $id = $this->uri->segment(3);
+        $this->Login_model->Delete_supervisor_all($id);
+        redirect('index.php/supervisor_all_list');
+    }
+
+    public function supervisor_all_list()
+    {
+        $this->load->model('Login_model');
+        $data['count_bussiness_visit'] = $this->Login_model->count_bussiness_visit();
+        $data['bussiness_visit_lists'] = $this->Login_model->bussiness_visit_lists();
+        $data['supervisor_list'] = $this->Login_model->supervisor_all_list();
+        $data['count_bussiness_register'] = $this->Login_model->count_bussiness_register();
+        $data['bussiness_registers_lists'] = $this->Login_model->bussiness_registers_lists();
+        $this->load->view('admin/supervisor_all_list',$data);
+    }
+
+	 public function user_delete_list()
+    {
+        
+        $this->load->model('Login_model');
+        $data['count_bussiness_visit'] = $this->Login_model->count_bussiness_visit();
+        $data['bussiness_visit_lists'] = $this->Login_model->bussiness_visit_lists();
+        $data['count_bussiness_register'] = $this->Login_model->count_bussiness_register();
+        $data['bussiness_registers_lists'] = $this->Login_model->bussiness_registers_lists();
+        $data['supervisor_lists'] = $this->Login_model->supervisor_list_status();
+        $data['user_list'] = $this->Login_model->user_delete_list();
+        $this->load->view('admin/user_delete_list',$data);
+    }
+	public function Delete_user_all($id)
+    {
+        
+       
+        $this->load->model('Login_model');
+        $id = $this->uri->segment(3);
+        $this->Login_model->Delete_user_all($id);
+        redirect('index.php/user_delete_list');
+    }
+
     public function supervisor_update()
     {
+    	
         $id     = $this->input->post('id', TRUE);
-        $password     = md5($this->input->post('password', TRUE));
-            
+        $password     = $this->input->post('password', TRUE);
+           
         $data = array(
             'password' =>$password,
             'id' =>$id
             
         );
+    	
+    	
         $this->load->model('Login_model');
         $result   = $this->Login_model->supervisor_password_update($data);
-
+		$enc_charges_id = str_replace("/","-",$this->encryption->encrypt($id));
+    	
         if (!empty($result)) 
         {
+        	
+        
             $this->session->set_flashdata('message', 'Supervisor Password Update Successfully');
-            redirect(base_url()."supervisor_password/".$id);
+            redirect(base_url()."index.php/supervisor_password/".$enc_charges_id );
         } 
         else 
         {
+        	
             $this->session->set_flashdata('message', 'Some Error');
-            redirect(base_url()."supervisor_password/".$id);
+            redirect(base_url()."index.php/supervisor_password/".$enc_charges_id );
         }
        
     }
@@ -673,7 +734,10 @@ class Admin extends CI_Controller {
             $filename = $_FILES['image']['name'];
 			$tmp_name = $_FILES['image']['tmp_name'];
             $result['upload_image'] = \Cloudinary\Uploader::upload($tmp_name);
-
+			
+      
+      			
+      
             $str ="";
             for($i=0;$i<count($receive_payments);$i++){
             $str.= $receive_payments[$i].',';
@@ -726,18 +790,61 @@ class Admin extends CI_Controller {
                 'updated_at' => date('Y-m-d H:m:i')
                 
             );
+      	
+      		$mm = ucfirst($owner_name).' '."Karibu Tenakata.";
+       		$username = $name;
+            $password = $password;
+            $to = $phone;
+       		$phone = $country_code.''.$phone;
+            $from = 'Tenakata';
+       		$username = 'Tenakata';
+            $link = 'Click on the below link to Download and Install the application. \n https://play.google.com/store/apps/details?id=com.tenakata \n Ahsante! \n For Help Call 0728888863!';
+
+            $message = ''.$mm.'\nUsername : '.$to.'\nPassword : '.$password.'\n '.$link;
+            $transactionID = "00007";
+            $clientid= "1062";
+            $curl = curl_init();
+            $password ="278b4fc4e6cc438b4fcf03f78c6f0909534dc4c270a762126c7bd45b09dde83a9ee74e92559a58d25793ac5a979ab7492e324d14acc0343e759abdce05c1ecf7";
+            curl_setopt_array($curl, array(
+              CURLOPT_PORT => "8095",
+              CURLOPT_URL => "https://eclecticsgateway.ekenya.co.ke:8095/ServiceLayer/pgsms/send",
+              CURLOPT_RETURNTRANSFER => true,
+              CURLOPT_ENCODING => "",
+              CURLOPT_MAXREDIRS => 10,
+              CURLOPT_TIMEOUT => 30,
+              CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+              CURLOPT_CUSTOMREQUEST => "POST",
+              CURLOPT_POSTFIELDS => "{\n\t\"to\":\"$phone\",\n\t\"message\":\"$message\",\n\t\"from\":\"$from\",\n\t\"transactionID\":\"$transactionID\",\n\t\"username\":\"$username\",\n\t\"password\":\"$password\",\n\t\"clientid\":\"$clientid\"\n}",
+              CURLOPT_HTTPHEADER => array(
+               "cache-control: no-cache",
+                "content-type: application/json",
+                "postman-token: 3a34b9f9-e3ec-75ed-07ad-bc1eab9c486f",
+                "token: LVwlhYsOteZ8c9TDRjBf",
+                "x-api-key: admin@123"
+              ),
+            ));
+            
+            $response = curl_exec($curl);
+            $err = curl_error($curl);
+            curl_close($curl);
+            
+            if ($err) {
+              //echo "cURL Error #:" . $err;
+            } else {
+            // echo $response;
+            }
         //   print_r($data);die;
             $result   = $this->Login_model->add_user($data);
 
             if (!empty($result)) 
             {
                 $this->session->set_flashdata('message', 'Bussiness Add Successfully');
-                redirect('user');
+                redirect('index.php/user');
             } 
             else 
             {
                 $this->session->set_flashdata('message', 'Some Error');
-                $this->load->view('user');
+                $this->load->view('index.php/user');
             }
         } 
         else 
@@ -775,7 +882,9 @@ class Admin extends CI_Controller {
 
     public function assign_user($id)
     {
-    //    echo $id;die;
+     	 $str  = str_replace('-', '/', $id);
+         $id  = $this->encryption->decrypt($str);
+    
         $this->load->model('Login_model');
         $data['count_bussiness_visit'] = $this->Login_model->count_bussiness_visit();
         $data['bussiness_visit_lists'] = $this->Login_model->bussiness_visit_lists();
@@ -801,14 +910,15 @@ class Admin extends CI_Controller {
         $find_user = $this->Login_model->find_user($user_id);
         $res = $this->Login_model->update_assign_users_single($data);
        $res = $this->Login_model->insert_alldata_single($data);
+    	$enc_charges_id = str_replace("/","-",$this->encryption->encrypt($id));
         if ($res == true) {
             $this->session->set_flashdata('message', 'Assign Bussiness Update Successfully');
-            redirect(base_url()."assign_user/".$id);
+            redirect(base_url()."index.php/assign_user/".$enc_charges_id );
         }
         else 
         {
             $this->session->set_flashdata('message', 'Some Error');
-            redirect(base_url()."assign_user/".$id);
+            redirect(base_url()."index.php/assign_user/".$enc_charges_id );
         }
     }
 
@@ -873,7 +983,7 @@ class Admin extends CI_Controller {
         $this->load->model('Login_model');
         $id = $this->uri->segment(3);
         $this->Login_model->Delete_user($id,$status);
-        redirect('user_list');
+        redirect('index.php/user_list');
     }
 
     public function Delete_supervisor($id)
@@ -883,7 +993,7 @@ class Admin extends CI_Controller {
         $this->load->model('Login_model');
         $id = $this->uri->segment(3);
         $this->Login_model->Delete_supervisor($id,$status);
-        redirect('supervisor_list');
+        redirect('index.php/supervisor_list');
     }
 
     public function trainings()
@@ -950,12 +1060,12 @@ class Admin extends CI_Controller {
                 if (!empty($result)) 
                 {
                     $this->session->set_flashdata('message', 'Add Training Successfully');
-                    redirect('add_training');
+                    redirect('index.php/add_training');
                 } 
                 else 
                 {
                     $this->session->set_flashdata('message', 'Some Error');
-                    $this->load->view('add_training');
+                    $this->load->view('index.php/add_training');
                 }
              }
         }
@@ -994,7 +1104,9 @@ class Admin extends CI_Controller {
     }
     public function supervisor_user_list($id)
     {
-       
+        $str  = str_replace('-', '/', $id);
+        $id  = $this->encryption->decrypt($str);
+    
         $this->load->model('Login_model');
         $data['id'] = $id;
         $data['count_bussiness_visit'] = $this->Login_model->count_bussiness_visit();
@@ -1048,12 +1160,12 @@ class Admin extends CI_Controller {
        
            if ($res == true) {
             $this->session->set_flashdata('message', 'Assign Bussiness Update Successfully');
-            redirect(base_url()."user_list");
+            redirect(base_url()."index.php/user_list");
             }
             else 
             {
                 $this->session->set_flashdata('message', 'Some Error');
-                redirect(base_url()."user_list");
+                redirect(base_url()."index.php/user_list");
             }
      
 
@@ -1138,7 +1250,7 @@ class Admin extends CI_Controller {
                 $this->load->model('Login_model');
                 $this->Login_model->update_with_out_image_training($data);
                 $this->session->set_flashdata('message', 'Training Update Successfully');
-                redirect('training_list');
+                redirect('index.php/training_list');
                 
             } else {
 
@@ -1171,12 +1283,12 @@ class Admin extends CI_Controller {
                 $res = $this->Login_model->update_with_image_training($data);
                 if ($res == true) {
                     $this->session->set_flashdata('message', 'Training Update Successfully');
-                    redirect('training_list');
+                    redirect('index.php/training_list');
                 }
                 else 
                 {
                     $this->session->set_flashdata('message', 'Some Error');
-                    redirect('training_list');
+                    redirect('index.php/training_list');
                 }
             }
         }
@@ -1188,7 +1300,7 @@ class Admin extends CI_Controller {
         $this->load->model('Login_model');
         $id = $this->uri->segment(3);
         $this->Login_model->Delete_training($id);
-        redirect('training_list');
+        redirect('index.php/training_list');
     }
 
     public function bussiness_visit_list()
@@ -1249,7 +1361,7 @@ class Admin extends CI_Controller {
        $this->load->model('Login_model');
        $data['bussiness_visit_status'] = $this->Login_model->bussiness_visit_status($id,$status);
        $this->load->view('admin/bussiness_visit_list',$data);
-       redirect('bussiness_visit_list');
+       redirect('index.php/bussiness_visit_list');
 
     }
 
@@ -1274,7 +1386,7 @@ class Admin extends CI_Controller {
        $data['user_list'] = $this->Login_model->user_list($key,$config['per_page'], $this->uri->segment(2));
        $data['bussiness_register_status'] = $this->Login_model->bussiness_register_status($id,$status);
        $this->load->view('admin/user_list',$data);
-       redirect('user_list');
+       redirect('index.php/user_list');
 
     }
 
@@ -1307,7 +1419,7 @@ class Admin extends CI_Controller {
             $this->load->model('Login_model');
             $this->Login_model->update_assign_supervisor($data);
             $this->session->set_flashdata('message', 'Assign Supervisor Add Successfully');
-            redirect(base_url()."assign_supervisor/".$id);
+            redirect(base_url()."index.php/assign_supervisor/".$id);
         }
         else 
         {
@@ -1315,7 +1427,7 @@ class Admin extends CI_Controller {
             $this->load->model('Login_model');
             $this->Login_model->update_assign_supervisors($data);
             $this->session->set_flashdata('message', 'Assign Supervisor update Successfully');
-            redirect(base_url()."assign_supervisor/".$id);
+            redirect(base_url()."index.php/assign_supervisor/".$id);
         }
     }
 
@@ -1361,12 +1473,12 @@ class Admin extends CI_Controller {
         if (!empty($result)) 
         {
             $this->session->set_flashdata('message', 'Privacy Policy  Add Successfully');
-            redirect('privacy_policy');
+            redirect('index.php/privacy_policy');
         } 
         else 
         {
             $this->session->set_flashdata('message', 'Some Error');
-            redirect('privacy_policy');
+            redirect('index.php/privacy_policy');
         }
     }
     
@@ -1400,12 +1512,12 @@ class Admin extends CI_Controller {
         if (!empty($result)) 
         {
             $this->session->set_flashdata('message', 'Terms Conditions  Add Successfully');
-            redirect('terms_conditions');
+            redirect('index.php/terms_conditions');
         } 
         else 
         {
             $this->session->set_flashdata('message', 'Some Error');
-            redirect('terms_conditions');
+            redirect('index.php/terms_conditions');
         }
     }
 
@@ -1421,6 +1533,92 @@ class Admin extends CI_Controller {
     	$data['terms_conditions'] = $this->Login_model->terms_conditions();
     	$this->load->view('admin/Terms_Conditions',$data);
     }
+	public function admin_profile()
+    {
+    	
+    	$this->load->model('Login_model');
+        $data['count_bussiness_visit'] = $this->Login_model->count_bussiness_visit();
+        $data['bussiness_visit_lists'] = $this->Login_model->bussiness_visit_lists();
+        $data['count_bussiness_register'] = $this->Login_model->count_bussiness_register();
+        $data['bussiness_registers_lists'] = $this->Login_model->bussiness_registers_lists();
+        $data['supervisor_list_data'] = $this->Login_model->supervisor_list_data();
+    	$data['showdata_data'] = $this->Login_model->showdata_data();
+    	$this->load->view('admin/profile',$data);
+    }
+
+
+
+    public function updateProfile()
+    {
+
+		$fname = $this->security->xss_clean($this->input->post('fname'));
+		$lname = $this->security->xss_clean($this->input->post('lname'));
+		$phone = $this->security->xss_clean($this->input->post('phone'));
+		$id = $this->security->xss_clean($this->input->post('id'));
+		$this->load->model('Login_model');
+		$image_url = $this->Login_model->get_profile1($this->session->userdata['email']);
+		
+			 
+
+		if($_FILES['image']['tmp_name'] != ''){
+			$this->load->library('cloudinarylib');
+			$filename=$_FILES['image']['name'];
+			$tmp_name=$_FILES['image']['tmp_name'];
+			 $result['upload_image'] = \Cloudinary\Uploader::upload($tmp_name);
+			$data = array(
+							'fname' => $fname,
+							'lname' =>$lname,
+							'phone' => $phone,
+							'image' => $result['upload_image']['url'],
+							'publicid_img' => $result['upload_image']['public_id']
+
+						);
+			$where = array(
+							'email' => $this->session->userdata['email'],
+							'id' =>$id
+						);
+        	$this->load->model('Login_model');
+			 $return = $this->Login_model->update_with_image_profile($where,$data);
+			 if($return){
+				 $this->session->set_userdata('fname',$fname);
+				 $this->session->set_userdata('lname',$lname);
+				 $this->session->set_userdata('image_url',$image_url[0]['image']);
+				 $this->session->set_flashdata('msg','Profile Update Sussessfully.');
+				 redirect('index.php/admin_profile','refresh');
+			 }
+			 else{
+				 $this->session->set_flashdata('msg','Some Problem.Try Again!!');
+				 redirect('index.php/admin_profile','refresh');
+			 }
+
+		}else{
+
+			$data = array(
+				'fname' => $fname,
+				'lname' =>$lname,
+				'phone' => $phone
+			);
+			$where = array(
+				'email' => $this->session->userdata['email'],
+				'id' =>$id
+			);
+        	$this->load->model('Login_model');
+ 			$return = $this->Login_model->update_with_out_image_profile($where,$data);
+ 			if($return){
+				$this->session->set_userdata('fname',$fname);
+				$this->session->set_userdata('lname',$lname);
+				$this->session->set_userdata('image_url',$image_url[0]['image']);
+				$this->session->set_flashdata('msg','Profile Update Sussessfully.');
+				redirect('index.php/admin_profile','refresh');
+			}
+			else{
+				$this->session->set_flashdata('msg','Some Problem.Try Again!!');
+				redirect('index.php/admin_profile','refresh');
+			}
+				
+		}
+
+	}
 
    
 

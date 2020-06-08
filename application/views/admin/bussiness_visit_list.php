@@ -5,7 +5,7 @@ if ($this->session->userdata['email'] == TRUE)
         }
         else
         {
-            redirect('login_admin'); //if session is not there, redirect to login page
+            redirect('index.php/login_admin'); //if session is not there, redirect to login page
         }
    include('header.php');?>
   <?php include('sidebar.php');?>
@@ -33,7 +33,7 @@ if ($this->session->userdata['email'] == TRUE)
                 <div class="col-lg-12">
                 <div class="ibox float-e-margins">
                     <div class="ibox-title">
-                    <a href="<?= base_url('bussiness_visit_export');?>"><button class="float-right btn btn-md btn-success" style="float: right;">Export </button></a>
+                    <a href="<?= base_url('index.php/bussiness_visit_export');?>"><button class="float-right btn btn-md btn-success" style="float: right;">Export </button></a>
                  
                     </div>
                     <div class="ibox-content">
@@ -43,15 +43,15 @@ if ($this->session->userdata['email'] == TRUE)
                     <thead>
                     <tr>
                         <th>S.NO</th>
-                        <th>Business Name</th>
-                        <th>Current Date</th>
+                        <th style="text-align: center;">Business Name</th>
+                        <th style="text-align: center;">Current Date</th>
                         <th style="text-align: center;">Comment</th>
-                        <th>Bussiness Location</th>
-                        <th>Stock</th>
-                     	<th>Latitude</th>
-                    	<th>Longitude</th>
-                        <th>Busy Shop</th>
-                        <th>Supervisor Name</th>
+                        <th style="text-align: center;">Bussiness Location</th>
+                        <th style="text-align: center;">Stock</th>
+                     	<th style="text-align: center;">Latitude</th>
+                    	<th style="text-align: center;">Longitude</th>
+                        <th style="text-align: center;">Busy Shop</th>
+                        <th style="text-align: center;">Supervisor Name</th>
                        
                        
                     </tr>
@@ -93,7 +93,12 @@ if ($this->session->userdata['email'] == TRUE)
             </div>
            
         </div>
-
+  <div class="footer">
+                    
+                    <div>
+                        <center><strong>Copyright Tenakata &copy; <?php echo date('Y');?> </strong></center>
+                    </div>
+                </div>
         <script src="<?= base_url();?>assets/js/jquery-2.1.1.js"></script>
     <script src="<?= base_url();?>assets/js/bootstrap.min.js"></script>
     <script src="<?= base_url();?>assets/js/plugins/metisMenu/jquery.metisMenu.js"></script>
@@ -191,7 +196,7 @@ if ($this->session->userdata['email'] == TRUE)
                 var id =$(this).attr("id");
                 if(confirm("Are you sure to Remove record?"))
                 {
-                    window.location="<?php echo base_url();?>Admin/Delete_training/"+id;
+                    window.location="<?php echo base_url();?>index.php/Admin/Delete_training/"+id;
                 }
                 else
                 {

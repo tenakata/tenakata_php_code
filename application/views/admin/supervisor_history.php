@@ -5,7 +5,7 @@ if ($this->session->userdata['email'] == TRUE)
         }
         else
         {
-            redirect('login_admin'); //if session is not there, redirect to login page
+            redirect('index.php/login_admin'); //if session is not there, redirect to login page
         }
    include('header.php');?>
   <?php include('sidebar.php');?>
@@ -34,7 +34,7 @@ if ($this->session->userdata['email'] == TRUE)
                 <div class="ibox float-e-margins">
                     <div class="ibox-title">
                    
-                    <a href="<?= base_url('user_list');?>"><button class="float-right btn btn-md btn-success">Back </button></a>
+                    <a href="<?= base_url('index.php/user_list');?>"><button class="float-right btn btn-md btn-success">Back </button></a>
                     </div>
                     <div class="ibox-content">
 

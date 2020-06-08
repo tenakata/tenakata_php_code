@@ -6,7 +6,7 @@
 	    {
            if($data['role'] == "user")
             {
-                $this->db->select('id,name,phone,country_code,role');
+                $this->db->select('id,owner_name as name,phone,country_code,role,image,status');
                 $this->db->from('business_register');
                 $this->db->where('phone',$data['phone']);
                 $this->db->where('password',$data['password']);
@@ -34,7 +34,8 @@
             }
             else
             {
-                $this->db->select('id,name,email,phone,country_code,role');
+            	
+                $this->db->select('id,name,email,phone,country_code,role,image,status');
                 $this->db->from('superwiser_register');
                 $this->db->where('phone',$data['phone']);
                 $this->db->where('password',$data['password']);
@@ -42,9 +43,10 @@
                 $this->db->where('role',$data['role']);
                 $this->db->where('status','1');
                 $query =$this->db->get()->result_array();
+            
                 if(count($query)> 0)
                 {
-                    $token = array(
+	                    $token = array(
                         'supervisor_user_id' => $query[0]['id'],
                         'sessiontoken' =>$data['sessiontoken'],
                         'updated_at' => date('Y-m-d H:m:i'));
@@ -286,7 +288,12 @@
                 $this->db->where('sales_purchases',$data['sales_purchases']);
           		$this->db->order_by("id", "desc");
                 $query =$this->db->get()->result_array();
+           		$bussinessname= $this->db->query("SELECT business_name FROM business_register WHERE business_register.id='".$query[0]['business_user_id']."'")->result_array();
+           		$bussiness_name = $bussinessname[0]['business_name'];
+           		 
+           
                 $amount = 0;
+           		
                 for($i=0;$i<count($query); $i++)
                 {
                    $data = $this->db->query("SELECT SUM(amount_paid) total FROM confirm_payment WHERE confirm_payment.transaction_id='".$query[$i]['id']."'")->result_array();
@@ -294,7 +301,15 @@
                    $query[$i]['amount'] = $query[$i]['amount'] - $data[0]['total'];
                     $amount = $amount + $query[$i]['amount'];
                     // $id = $query[$i]['id'];
+                     $query[$i] = array_merge($query[$i],array('bussiness_name'=>$bussiness_name));
+                   
                 }
+           	
+           
+           		
+                 
+           
+          		
                 $return['query'] = $query;
                 $return['amount'] = $amount;
                 return $return;
@@ -323,13 +338,17 @@
                 $this->db->where('sales_purchases',$data['sales_purchases']);
            		$this->db->order_by("id", "desc");
                 $query =$this->db->get()->result_array();
+           		$bussinessname= $this->db->query("SELECT business_name FROM business_register WHERE business_register.id='".$query[0]['business_user_id']."'")->result_array();
+           		$bussiness_name = $bussinessname[0]['business_name'];
                 $amount = 0;
                 for($i=0;$i<count($query); $i++)
                 {
                    $data = $this->db->query("SELECT SUM(amount_paid) total FROM confirm_payment WHERE confirm_payment.transaction_id='".$query[$i]['id']."'")->result_array();
                    
                    $query[$i]['amount'] = $query[$i]['amount'] - $data[0]['total'];
+                
                     $amount = $amount + $query[$i]['amount'];
+                 $query[$i] = array_merge($query[$i],array('bussiness_name'=>$bussiness_name));
                     // $id = $query[$i]['id'];
                 }
                 $return['query'] = $query;
@@ -373,6 +392,8 @@
                 $this->db->where('sales_purchases',$data['sales_purchases']);
           		$this->db->order_by("id", "desc");
                 $query =$this->db->get()->result_array();
+          		$bussinessname= $this->db->query("SELECT business_name FROM business_register WHERE business_register.id='".$query[0]['business_user_id']."'")->result_array();
+           		$bussiness_name = $bussinessname[0]['business_name'];
                 $amount = 0;
                 for($i=0;$i<count($query); $i++)
                 {
@@ -380,11 +401,16 @@
                    
                    $query[$i]['amount'] = $query[$i]['amount'] - $data[0]['total'];
                     $amount = $amount + $query[$i]['amount'];
+                  $query[$i] = array_merge($query[$i],array('bussiness_name'=>$bussiness_name));
                     // $id = $query[$i]['id'];
                 }
-                
+          		
+               
+          		
+          		
                 $return['query'] = $query;
                 $return['amount'] = $amount;
+          
                 return $return;
            }
            else 
@@ -411,6 +437,8 @@
                 $this->db->where('sales_purchases',$data['sales_purchases']);
            		$this->db->order_by("id", "desc");
                 $query =$this->db->get()->result_array();
+           		$bussinessname= $this->db->query("SELECT business_name FROM business_register WHERE business_register.id='".$query[0]['business_user_id']."'")->result_array();
+           		$bussiness_name = $bussinessname[0]['business_name'];
                 $amount = 0;
                 for($i=0;$i<count($query); $i++)
                 {
@@ -418,11 +446,13 @@
                    
                    $query[$i]['amount'] = $query[$i]['amount'] - $data[0]['total'];
                     $amount = $amount + $query[$i]['amount'];
+                  $query[$i] = array_merge($query[$i],array('bussiness_name'=>$bussiness_name));
                     // $id = $query[$i]['id'];
                 }
                 
                 $return['query'] = $query;
                 $return['amount'] = $amount;
+           		
                 return $return;
            }
         }
@@ -450,49 +480,128 @@
            
            if($data['sales_purchases'] == "sales")
            {
-              
-                if($data['filter'] == 'year')
+              if($data['filter'] == 'year')
                 {
-                    $timeSQL = "created_at > DATE_SUB(NOW(), INTERVAL 1 YEAR) AND sales_purchases='sales' AND business_user_id= '".$id."'";
-                    $timeSQL1 = "created_at > DATE_SUB(NOW(), INTERVAL 1 YEAR) AND sales_purchases='sales' AND business_user_id='".$id."'";
+                    $timeSQL = "date > DATE_SUB(NOW(), INTERVAL 1 YEAR) AND sales_purchases='sales' AND business_user_id= '".$id."'";
+                    $timeSQL1 = "date > DATE_SUB(NOW(), INTERVAL 1 YEAR) AND sales_purchases='sales' AND business_user_id='".$id."'";
 
-                    $prevSQL = "YEAR(created_at) = YEAR(DATE_SUB(CURDATE(), INTERVAL 1 YEAR)) AND sales_purchases='sales' AND business_user_id= '".$id."'";
-                    $prevSQL1 = "YEAR(created_at) = YEAR(DATE_SUB(CURDATE(), INTERVAL 1 YEAR)) AND sales_purchases='sales' AND business_user_id='".$id."'";
+              
+              		
+                    $amount = 0;
+          		    $prev_result = array();
+            		if($data['filter'] == 'year')
+           			{
+               			$year = $this->db->query("SELECT DATE_FORMAT(date,'%Y-%m-%d') as created_at,sum(amount) amount from ( select date,amount from  daily_sales_purchases WHERE date > DATE_SUB(NOW(), INTERVAL 1 YEAR) && business_user_id ='".$id."' && sales_purchases ='sales'  union all select date,amount from credit_sales_purchases  WHERE date > DATE_SUB(NOW(), INTERVAL 1 YEAR) && business_user_id = '".$id."' && sales_purchases ='sales')t group by date")->result_array();
+            			// print_r($year);die;
+                    
+                    
+                    
+           		 for($i=0;$i<count($year); $i++)
+               	{
+                  	$date = $year[$i]['created_at'];
+                   $amount = $amount + $year[$i]['amount'];
+               
+              	}
+               // $date = date('Y'); //today date
+               array_push($prev_result,array('created_at'=>$date,'amount'=>$amount));
+                
+           }
+              // print_r($prev_result);die;
                 }
                 if($data['filter'] == 'month')
                 {
-                    $timeSQL = "created_at > DATE_SUB(NOW(), INTERVAL 1 MONTH) AND sales_purchases='sales' AND business_user_id='".$id."'";
-                    $timeSQL1 = "created_at > DATE_SUB(NOW(), INTERVAL 1 MONTH) AND sales_purchases='sales' AND business_user_id='".$id."'";
+                    $timeSQL = "date > DATE_SUB(NOW(), INTERVAL 1 MONTH) AND sales_purchases='sales' AND business_user_id='".$id."'";
+                    $timeSQL1 = "date > DATE_SUB(NOW(), INTERVAL 1 MONTH) AND sales_purchases='sales' AND business_user_id='".$id."'";
 
-                    $prevSQL = "created_at BETWEEN date_format(NOW() - INTERVAL 1 MONTH, '%Y-%m-01') AND last_day(NOW() - INTERVAL 1 MONTH) AND sales_purchases='sales' AND business_user_id='".$id."'";
-                    $prevSQL1 = "created_at BETWEEN date_format(NOW() - INTERVAL 1 MONTH, '%Y-%m-01') AND last_day(NOW() - INTERVAL 1 MONTH) AND sales_purchases='sales' AND business_user_id='".$id."'";
+                    date_default_timezone_set("America/Chicago");
+              		$count = 0;
+                    $endtMonth = date('m');
+                    $data_array = array();
+                    $year_month = date("Y-m");
+                    $prev_result = array();
+                    $first_day = strtotime("$year_month-01 00:00:00");
+                   while ($count < $endtMonth) {
+                  
+                    $query_year = date("m", strtotime("-".$count." months", $first_day));
+                    
+                    $date_array[] = array(
+                        "created_at" => $query_year
+                    );
+                    $count++;
+                  
+                }
+                foreach($date_array as $month_date)
+                {
+                    $all_month = $month_date['created_at'];
+                	
+                    $data_month = $this->db->query("SELECT sum(amount) amount from ( select amount FROM  daily_sales_purchases WHERE MONTH(date) = '$all_month'  && business_user_id = '".$id."' && sales_purchases = 'sales' union all select amount from credit_sales_purchases WHERE MONTH(date) = '$all_month' && business_user_id = '".$id."' && sales_purchases = 'sales') t")->result_array();
+              
+               
+                $gg = array_merge($data_month[0]);
+                   
+                    array_push($prev_result,$gg);
+                }
+                // print_r($prev_result);die;
                 }  
                 if($data['filter'] == 'week')
                 {
-                    $timeSQL = "created_at > DATE_SUB(NOW(), INTERVAL 1 WEEK) AND sales_purchases='sales' AND business_user_id='".$id."'";
-                    $timeSQL1 = "created_at > DATE_SUB(NOW(), INTERVAL 1 WEEK) AND sales_purchases='sales' AND business_user_id='".$id."'";
+                    $timeSQL = "date > DATE_SUB(NOW(), INTERVAL 1 WEEK) AND sales_purchases='sales' AND business_user_id='".$id."'";
+                    $timeSQL1 = "date > DATE_SUB(NOW(), INTERVAL 1 WEEK) AND sales_purchases='sales' AND business_user_id='".$id."'";
 
-                    $prevSQL = "YEARWEEK(created_at) = YEARWEEK(NOW() - INTERVAL 1 WEEK) AND sales_purchases='sales' AND business_user_id='".$id."'";
-                    $prevSQL1 = "YEARWEEK(created_at) = YEARWEEK(NOW() - INTERVAL 1 WEEK) AND sales_purchases='sales' AND business_user_id='".$id."'";
+                     $arr = array("0", "7");
+               	    $date = date('Y-m-d');
+                    $data1= array('created_at ' => '0' , 'amount' => '0');
+                    $prev_result= array();
+                   for($i=0;$i<count($arr); $i++)
+                  {
+                    $sDate = date("Y-m-d", strtotime('-'. $arr[$i] .' days'));
+                    $eDate = date('Y-m-d', strtotime('-6 days', strtotime($sDate)));
+                    $s_date = date('j F', strtotime($sDate));
+                    $e_date = date('j F', strtotime($eDate));
+                    $alldate = $e_date.' to '.$s_date;
+                   
+                   $data_result = $this->db->query("SELECT sum(amount) amount from ( select amount from daily_sales_purchases WHERE date >= '$eDate' AND date <= '$sDate' AND business_user_id='".$id."' AND  sales_purchases='sales' union all select amount from credit_sales_purchases WHERE date >= '$eDate' AND date <= '$sDate' AND business_user_id='".$id."' AND  sales_purchases='sales')t")->result_array();
+                    $gg = array_merge($data_result[0]);
+                   
+                    array_push($prev_result,$gg);
+                }
+           // print_r($prev_result);die;
                 }
                 if($data['filter'] == 'day')
                 {
-                    $timeSQL = "DAY(created_at) = DAY(NOW()) AND sales_purchases='sales' AND business_user_id='".$id."'";
-                    $timeSQL1 = "DAY(created_at) = DAY(NOW()) AND sales_purchases='sales' AND business_user_id='".$id."'";
+                    $timeSQL = "DAY(date) = DAY(NOW()) AND sales_purchases='sales' AND business_user_id='".$id."'";
+                    $timeSQL1 = "DAY(date) = DAY(NOW()) AND sales_purchases='sales' AND business_user_id='".$id."'";
 
-                    $prevSQL = "DAY(created_at) = DAY(CURRENT_DATE - INTERVAL 1 DAY) AND sales_purchases='sales' AND business_user_id='".$id."'";
-                    $prevSQL1 = "DAY(created_at) = DAY(CURRENT_DATE - INTERVAL 1 DAY) AND sales_purchases='sales' AND business_user_id='".$id."'";
+              
+                     $date = date('Y-m-d'); //today date
+               		 $weekOfdays = array();
+               		 for($i =0; $i <= 1; $i++){
+                   		 $date = date("Y-m-d", strtotime('-'. $i .' days'));
+                    	$weekOfdays[] = date('Y-m-d', strtotime($date));
+               	 }
+            
+              
+                
+                $prev_result = array();
+                foreach($weekOfdays as $day)
+                {
+                	 $data1= array('created_at ' => $day , 'amount' => '0');
+                $data = $this->db->query("select DATE_FORMAT(date,'%Y-%m-%d') as created_at,sum(amount) amount from ( select date,amount from daily_sales_purchases WHERE date LIKE '%$day%'  AND business_user_id = '".$id."'  AND sales_purchases = 'sales' union all select date,amount from credit_sales_purchases WHERE date LIKE '%$day%' AND business_user_id = '".$id."'  AND sales_purchases = 'sales' ) t group by date")->row_array();
+                 if($data >= '0')
+                    {
+                         $prev_result[] = $data;
+                    }
+                    else
+                    {
+                         $prev_result[] = $data1;
+                    }
+                 }
+                // print_r($prev_result);die;
                 }  
-
-                    $prevSql = "SELECT sum(amount) as cash_amount FROM daily_sales_purchases WHERE ".$prevSQL;
-                    $Result_prev = $this->db->query($prevSql)->result_array();
-                   
-
-                    $prevSql = "SELECT sum(amount) as amount FROM credit_sales_purchases WHERE ".$prevSQL1;
-                    $Result_prev1 = $this->db->query($prevSql)->result_array();
 
                     $Sql = "SELECT sum(amount) as cash_amount FROM daily_sales_purchases WHERE ".$timeSQL;
                     $Result = $this->db->query($Sql)->result_array();
+           			
                     $Sql1 = "SELECT sum(amount) as amount FROM credit_sales_purchases WHERE ".$timeSQL1;
                     $Result1 = $this->db->query($Sql1)->result_array();
                     $this->db->select('name');
@@ -501,35 +610,25 @@
                     $query =$this->db->get()->result_array();
            			
                     $merge = array_merge($Result[0],array("credit_amount"=>$Result1[0]['amount']));
-                    $merge1 = array_merge($Result_prev[0],array("credit_amount"=>$Result_prev1[0]['amount']));
+           		
+                  
 
                     $amount = $merge['cash_amount'];
                     $credit_amount = $merge['credit_amount'];
                     $total = $amount+$credit_amount;
-                    $amount1 = $merge1['cash_amount'];
-                    $credit_amount1 = $merge1['credit_amount'];
-                    $total1 = $amount1+$credit_amount1;
-                    if($total != 0 || $total !=0)
-                    {
-                        $percentage = ($total1*100)/$total;
-                    }
-                    else
-                    {
-                        $percentage = "0";
-                    }
-                    // $percentage = ($total1*100)/$total;
-                    
-                    if($total >= $total1)
-                    {
-                        $arraow= "true";
-                    }
-                    else
-                    {
-                        $arraow ="false";
-                    };
+           		
+//            			if($prev_result[0] == '')
+//                     {
+//                     	$prev_all = '0';
+//                     }
+//            			else
+//                     {
+//                     	$prev_all = $prev_result[0]['amount'];
+//                     }
+           		
+                 // print_r($prev_result);die;
                     $return['home'] = $merge;
-                    $return['percentage'] = $percentage;
-                    $return['arraow'] = $arraow;
+                   	$return['prev_all'] = $prev_result;
                     $return['name'] = $query[0]['name'];
                     return $return;
            } 
@@ -538,83 +637,144 @@
               
                 if($data['filter'] == 'year')
                 {
-                    $timeSQL = "created_at > DATE_SUB(NOW(), INTERVAL 1 YEAR) AND sales_purchases='purchase' AND business_user_id= '".$id."'";
-                    $timeSQL1 = "created_at > DATE_SUB(NOW(), INTERVAL 1 YEAR) AND sales_purchases='purchase' AND business_user_id='".$id."'";
+                    $timeSQL = "date > DATE_SUB(NOW(), INTERVAL 1 YEAR) AND sales_purchases='purchase' AND business_user_id= '".$id."'";
+                    $timeSQL1 = "date > DATE_SUB(NOW(), INTERVAL 1 YEAR) AND sales_purchases='purchase' AND business_user_id='".$id."'";
 
-                    $prevSQL = "YEAR(created_at) = YEAR(DATE_SUB(CURDATE(), INTERVAL 1 YEAR)) AND sales_purchases='purchase' AND business_user_id= '".$id."'";
-                    $prevSQL1 = "YEAR(created_at) = YEAR(DATE_SUB(CURDATE(), INTERVAL 1 YEAR)) AND sales_purchases='purchase' AND business_user_id='".$id."'";
+         		
+		            $amount = 0;
+          		    $prev_result = array();
+            		if($data['filter'] == 'year')
+           			{
+               			$year = $this->db->query("SELECT DATE_FORMAT(date,'%Y-%m-%d') as created_at,sum(amount) amount from ( select date,amount from  daily_sales_purchases WHERE date > DATE_SUB(NOW(), INTERVAL 1 YEAR) && business_user_id ='".$id."' && sales_purchases ='purchase'  union all select date,amount from credit_sales_purchases  WHERE date > DATE_SUB(NOW(), INTERVAL 1 YEAR) && business_user_id = '".$id."' && sales_purchases ='purchase')t group by date")->result_array();
+            			// print_r($year);die;
+            		
+                    
+           		 for($i=0;$i<count($year); $i++)
+               	{
+                  	$date = $year[$i]['created_at'];
+                   $amount = $amount + $year[$i]['amount'];
+               
+              	}
+               // $date = date('Y'); //today date
+               array_push($prev_result,array('created_at'=>$date,'amount'=>$amount));
+                
+           }
+              // print_r($prev_result);die;
                 }
                 if($data['filter'] == 'month')
                 {
-                    $timeSQL = "created_at > DATE_SUB(NOW(), INTERVAL 1 MONTH) AND sales_purchases='purchase' AND business_user_id='".$id."'";
-                    $timeSQL1 = "created_at > DATE_SUB(NOW(), INTERVAL 1 MONTH) AND sales_purchases='purchase' AND business_user_id='".$id."'";
+                    $timeSQL = "date > DATE_SUB(NOW(), INTERVAL 1 MONTH) AND sales_purchases='purchase' AND business_user_id='".$id."'";
+                    $timeSQL1 = "date > DATE_SUB(NOW(), INTERVAL 1 MONTH) AND sales_purchases='purchase' AND business_user_id='".$id."'";
 
-                    $prevSQL = "created_at BETWEEN date_format(NOW() - INTERVAL 1 MONTH, '%Y-%m-01') AND last_day(NOW() - INTERVAL 1 MONTH) AND sales_purchases='purchase' AND business_user_id='".$id."'";
-                    $prevSQL1 = "created_at BETWEEN date_format(NOW() - INTERVAL 1 MONTH, '%Y-%m-01') AND last_day(NOW() - INTERVAL 1 MONTH) AND sales_purchases='purchase' AND business_user_id='".$id."'";
+                    date_default_timezone_set("America/Chicago");
+              		$count = 0;
+                    $endtMonth = date('m');
+                    $data_array = array();
+                    $year_month = date("Y-m");
+                    $prev_result = array();
+                    $first_day = strtotime("$year_month-01 00:00:00");
+                   while ($count < $endtMonth) {
+                  
+                    $query_year = date("m", strtotime("-".$count." months", $first_day));
+                   
+                    $date_array[] = array(
+                        "created_at" => $query_year
+                    );
+                    $count++;
+                 
+                }
+                foreach($date_array as $month_date)
+                {
+                    $all_month = $month_date['created_at'];
+                	
+                    $data_month = $this->db->query("SELECT sum(amount) amount from ( select amount FROM  daily_sales_purchases WHERE MONTH(date) = '$all_month'  && business_user_id = '".$id."' && sales_purchases = 'purchase' union all select amount from credit_sales_purchases WHERE MONTH(date) = '$all_month' && business_user_id = '".$id."' && sales_purchases = 'purchase') t")->result_array();
+              
+               
+                $gg = array_merge($data_month[0]);
+                   
+                    array_push($prev_result,$gg);
+                }
+                // print_r($prev_result);die;
                 }  
                 if($data['filter'] == 'week')
                 {
-                    $timeSQL = "created_at > DATE_SUB(NOW(), INTERVAL 1 WEEK) AND sales_purchases='purchase' AND business_user_id='".$id."'";
-                    $timeSQL1 = "created_at > DATE_SUB(NOW(), INTERVAL 1 WEEK) AND sales_purchases='purchase' AND business_user_id='".$id."'";
+                    $timeSQL = "date > DATE_SUB(NOW(), INTERVAL 1 WEEK) AND sales_purchases='purchase' AND business_user_id='".$id."'";
+                    $timeSQL1 = "date > DATE_SUB(NOW(), INTERVAL 1 WEEK) AND sales_purchases='purchase' AND business_user_id='".$id."'";
 
-                    $prevSQL = "YEARWEEK(created_at) = YEARWEEK(NOW() - INTERVAL 1 WEEK) AND sales_purchases='purchase' AND business_user_id='".$id."'";
-                    $prevSQL1 = "YEARWEEK(created_at) = YEARWEEK(NOW() - INTERVAL 1 WEEK) AND sales_purchases='purchase' AND business_user_id='".$id."'";
+                     $arr = array("0", "7");
+               	    $date = date('Y-m-d');
+                    $data1= array('created_at ' => '0' , 'amount' => '0');
+                    $prev_result= array();
+                   for($i=0;$i<count($arr); $i++)
+                  {
+                    $sDate = date("Y-m-d", strtotime('-'. $arr[$i] .' days'));
+                    $eDate = date('Y-m-d', strtotime('-6 days', strtotime($sDate)));
+                    $s_date = date('j F', strtotime($sDate));
+                    $e_date = date('j F', strtotime($eDate));
+                    $alldate = $e_date.' to '.$s_date;
+                   
+                   $data_result = $this->db->query("SELECT sum(amount) amount from ( select amount from daily_sales_purchases WHERE date >= '$eDate' AND date <= '$sDate' AND business_user_id='".$id."' AND  sales_purchases='purchase' union all select amount from credit_sales_purchases WHERE date >= '$eDate' AND date <= '$sDate' AND business_user_id='".$id."' AND  sales_purchases='purchase')t")->result_array();
+                    $gg = array_merge($data_result[0]);
+                   
+                    array_push($prev_result,$gg);
+                }
+           // print_r($prev_result);die;
                 }
                 if($data['filter'] == 'day')
                 {
-                    $timeSQL = "DAY(created_at) = DAY(NOW()) AND sales_purchases='purchase' AND business_user_id='".$id."'";
-                    $timeSQL1 = "DAY(created_at) = DAY(NOW()) AND sales_purchases='purchase' AND business_user_id='".$id."'";
+                    $timeSQL = "DAY(date) = DAY(NOW()) AND sales_purchases='purchase' AND business_user_id='".$id."'";
+                    $timeSQL1 = "DAY(date) = DAY(NOW()) AND sales_purchases='purchase' AND business_user_id='".$id."'";
 
-                    $prevSQL = "DAY(created_at) = DAY(CURRENT_DATE - INTERVAL 1 DAY) AND sales_purchases='purchase' AND business_user_id='".$id."'";
-                    $prevSQL1 = "DAY(created_at) = DAY(CURRENT_DATE - INTERVAL 1 DAY) AND sales_purchases='purchase' AND business_user_id='".$id."'";
+              
+                     $date = date('Y-m-d'); //today date
+               		 $weekOfdays = array();
+               		 for($i =0; $i <= 1; $i++){
+                   		 $date = date("Y-m-d", strtotime('-'. $i .' days'));
+                    	$weekOfdays[] = date('Y-m-d', strtotime($date));
+               	 }
+            
+              
+                
+                $prev_result = array();
+                foreach($weekOfdays as $day)
+                {
+                	 $data1= array('created_at ' => $day , 'amount' => '0');
+                $data = $this->db->query("select DATE_FORMAT(date,'%Y-%m-%d') as created_at,sum(amount) amount from ( select date,amount from daily_sales_purchases WHERE date LIKE '%$day%'  AND business_user_id = '".$id."'  AND sales_purchases = 'purchase' union all select date,amount from credit_sales_purchases WHERE date LIKE '%$day%' AND business_user_id = '".$id."'  AND sales_purchases = 'purchase' ) t group by date")->row_array();
+                 if($data >= '0')
+                    {
+                         $prev_result[] = $data;
+                    }
+                    else
+                    {
+                         $prev_result[] = $data1;
+                    }
+                 }
+                // print_r($prev_result);die;
                 }  
-
-                $prevSql = "SELECT sum(amount) as cash_amount FROM daily_sales_purchases WHERE ".$prevSQL;
-                $Result_prev = $this->db->query($prevSql)->result_array();
-               
-
-                $prevSql = "SELECT sum(amount) as amount FROM credit_sales_purchases WHERE ".$prevSQL1;
-                $Result_prev1 = $this->db->query($prevSql)->result_array();
 
                     $Sql = "SELECT sum(amount) as cash_amount FROM daily_sales_purchases WHERE ".$timeSQL;
                     $Result = $this->db->query($Sql)->result_array();
-                    $Sql1 = "SELECT sum(amount) as amount FROM credit_sales_purchases WHERE ".$timeSQL1; 
+           			
+                    $Sql1 = "SELECT sum(amount) as amount FROM credit_sales_purchases WHERE ".$timeSQL1;
                     $Result1 = $this->db->query($Sql1)->result_array();
                     $this->db->select('name');
                     $this->db->from('business_register');
                     $this->db->where('id',$id);
                     $query =$this->db->get()->result_array();
+           			
                     $merge = array_merge($Result[0],array("credit_amount"=>$Result1[0]['amount']));
-                    $merge1 = array_merge($Result_prev[0],array("credit_amount"=>$Result_prev1[0]['amount']));
+           		
+                  
 
                     $amount = $merge['cash_amount'];
                     $credit_amount = $merge['credit_amount'];
                     $total = $amount+$credit_amount;
-                    $amount1 = $merge1['cash_amount'];
-                    $credit_amount1 = $merge1['credit_amount'];
-                    $total1 = $amount1+$credit_amount1;
-
-                    if($total != 0 || $total !=0)
-                    {
-                        $percentage = ($total1*100)/$total;
-                    }
-                    else
-                    {
-                        $percentage = "0";
-                    }
-                    if($total >= $total1)
-                    {
-                        $arraow= "true";
-                    }
-                    else
-                    {
-                        $arraow ="false";
-                    };
-
-                 
+           	
+           			
+           		
+                 // print_r($prev_result);die;
                     $return['home'] = $merge;
-                    $return['percentage'] = $percentage;
-                    $return['arraow'] = $arraow;
+                   	$return['prev_all'] = $prev_result;
                     $return['name'] = $query[0]['name'];
                     return $return;
             }
@@ -624,20 +784,25 @@
         {
             if($payment_type == 'cash')
             {
-                $this->db->select('id,attach_recepit,item_list,amount,sales_purchases');
+                $this->db->select('id,id_no,date,attach_recepit,item_list,amount,sales_purchases,business_user_id');
                 $this->db->where('id', $id);
                 $this->db->where('payment_type', $payment_type);
-                $this->db->where('sales_purchases', "sales");
+                $this->db->where('sales_purchases', $sales_purchases);
                 $this->db->from('daily_sales_purchases');
                 $query =$this->db->get()->result_array();
-                $amount = 0;
+            
+            	
+            	$bussinessname= $this->db->query("SELECT business_name FROM business_register WHERE business_register.id='".$query[0]['business_user_id']."'")->result_array();
+           		$bussiness_name = $bussinessname[0]['business_name'];
+            
+            	$amount = 0;
                 for($i=0;$i<count($query); $i++)
                 {
                    $data = $this->db->query("SELECT SUM(amount_paid) total FROM confirm_payment WHERE confirm_payment.transaction_id='".$query[$i]['id']."'")->result_array();
                    
                    $query[$i]['amount'] = $query[$i]['amount'] - $data[0]['total'];
                     $amount = $amount + $query[$i]['amount'];
-                   
+                      $query[$i] = array_merge($query[$i],array('bussiness_name'=>$bussiness_name));
                 }
                 
                 $return['query'] = $query;
@@ -646,12 +811,16 @@
             }
             else 
             {
-                $this->db->select('id,name,phone,attach_recepit,item_list,amount,sales_purchases');
+                $this->db->select('id,name,phone,id_no,date,attach_recepit,item_list,amount,sales_purchases,business_user_id');
                 $this->db->where('id', $id);
                 $this->db->where('payment_type', $payment_type);
-                $this->db->where('sales_purchases', "sales");
+                $this->db->where('sales_purchases', $sales_purchases);
                 $this->db->from('credit_sales_purchases');
                 $query =$this->db->get()->result_array();
+            	
+            	$bussinessname= $this->db->query("SELECT business_name FROM business_register WHERE business_register.id='".$query[0]['business_user_id']."'")->result_array();
+           		$bussiness_name = $bussinessname[0]['business_name'];
+            
                 $amount = 0;
                 for($i=0;$i<count($query); $i++)
                 {
@@ -659,6 +828,7 @@
                    
                    $query[$i]['amount'] = $query[$i]['amount'] - $data[0]['total'];
                     $amount = $amount + $query[$i]['amount'];
+                 $query[$i] = array_merge($query[$i],array('bussiness_name'=>$bussiness_name));
                    
                 }
                 
@@ -673,7 +843,7 @@
         {
             if($payment_type == 'cash')
             {
-                $this->db->select('id,attach_recepit,item_list,amount,sales_purchases');
+                $this->db->select('id,attach_recepit,date,id_no,item_list,name,amount,phone,country_code,sales_purchases');
                 $this->db->where('id', $id);
                 $this->db->where('payment_type', $payment_type);
                 $this->db->where('sales_purchases', $sales_purchases);
@@ -695,7 +865,7 @@
             }
             else 
             {
-                $this->db->select('id,name,phone,attach_recepit,item_list,amount,sales_purchases');
+                $this->db->select('id,name,phone,id_no,date,attach_recepit,phone,country_code,item_list,amount,sales_purchases');
                 $this->db->where('id', $id);
                 $this->db->where('payment_type', $payment_type);
                 $this->db->where('sales_purchases', $sales_purchases);
@@ -733,7 +903,86 @@
             return $update;
         
         }
-        
+        public function check_id($transaction_id)
+        {
+        	 $this->db->select('*');
+             $this->db->where('transaction_id', $transaction_id);
+             $q=$this->db->get('confirm_payment');
+             return $count=$q->result();
+        }
+    
+    	public function check_sms($transaction_id)
+        {
+         	    $this->db->select('id,business_user_id,name,amount,phone,country_code,date');
+                $this->db->from('credit_sales_purchases');
+                $this->db->where('id',$transaction_id);
+              	$query2 =$this->db->get()->result_array();
+         		
+                $amount = 0;
+                for($i=0;$i<count($query2); $i++)
+                {
+                   $data = $this->db->query("SELECT * FROM confirm_payment WHERE confirm_payment.transaction_id='".$query2[$i]['id']."'")->result_array();
+                   
+                   $query = $data;
+                   //  $amount = $amount + $query[$i]['amount'];
+                   
+                }     
+            	
+            // print_r($query);die;
+        	  // $this->db->select('business_name,phone');
+        	  // $this->db->from('business_register');
+        	  // $this->db->where('id',$query[0]['transaction_id']);
+        	  // $query1 =$this->db->get()->result_array();
+        // print_r($query1);die;
+            $return['query'] = $query;
+        	$return['query2'] = $query2;
+            // $return['amount'] = $amount;
+        // print_r($return);die;
+                return $return;
+            
+            
+        }
+    	public function sms($transaction_id)
+        {
+         
+            $this->db->select('*');
+            $this->db->where('transaction_id', $transaction_id);
+            $this->db->from('confirm_payment');
+            $query2 =$this->db->get()->result_array();
+        	for($i=0;$i<count($query2); $i++)
+            {
+            	
+            	$transaction_id = $query2[$i]['transaction_id'];
+            	
+                $this->db->select('id,business_user_id,name,amount,phone,country_code,date');
+                $this->db->from('credit_sales_purchases');
+                $this->db->where('id',$transaction_id);
+              	$query2 =$this->db->get()->result_array();
+         		
+                $amount = 0;
+                for($i=0;$i<count($query2); $i++)
+                {
+                   $data = $this->db->query("SELECT * FROM confirm_payment WHERE confirm_payment.transaction_id='".$query2[$i]['id']."'")->result_array();
+                   
+                   $query= $data;
+                   //  $amount = $amount + $query[$i]['amount'];
+                   
+                }     
+            	
+            }
+        	  // $this->db->select('business_name,phone');
+        	  // $this->db->from('business_register');
+        	  // $this->db->where('id',$query[0]['business_user_id']);
+        	  // $query1 =$this->db->get()->result_array();
+        // print_r($query2);die;
+            $return['query'] = $query;
+        	$return['query2'] = $query21;
+            // $return['amount'] = $amount;
+        // print_r($return);die;
+                return $return;
+            
+            
+        }
         public function supervisor_home($supervisor_id)
         {
             
@@ -903,12 +1152,13 @@
         
         public function profile($profile)
 	    {
+       
 
          if($profile['role'] == "user")
            {
                 if(empty($_FILES))
                 {
-                        $this->db->set('name',$profile['name']);
+                        $this->db->set('owner_name',$profile['owner_name']);
                         $this->db->set('email',$profile['email']);
                         $this->db->where('id',$profile['id']);
                         $this->db->where('role',$profile['role']);
@@ -917,7 +1167,7 @@
                 }
                 else
                 {
-                    $this->db->set('name',$profile['name']);
+                    $this->db->set('owner_name',$profile['owner_name']);
                     $this->db->set('email',$profile['email']);
                     $this->db->set('image',$profile['image']);
                     $this->db->set('public_id',$profile['public_id']);
@@ -932,7 +1182,7 @@
             
                 if(empty($_FILES))
                 {
-                        $this->db->set('name',$profile['name']);
+                        $this->db->set('name',$profile['owner_name']);
                         $this->db->set('email',$profile['email']);
                         $this->db->where('id',$profile['id']);
                         $this->db->where('role',$profile['role']);
@@ -941,7 +1191,7 @@
                 }
                 else
                 {
-                    $this->db->set('name',$profile['name']);
+                    $this->db->set('name',$profile['owner_name']);
                     $this->db->set('email',$profile['email']);
                     $this->db->set('image',$profile['image']);
                     $this->db->set('public_id',$profile['public_id']);
@@ -1167,12 +1417,14 @@
                 {
                 
                     $data1= array('created_at ' => $day , 'amount' => '0');
-                   // $data = $this->db->query("select DATE_FORMAT(created_at,'%Y-%m-%d') as created_at,sum(amount) amount from ( select created_at,amount from daily_sales_purchases WHERE created_at LIKE '%$day%'  AND business_user_id = '32' AND sales_purchases = 'sales' union all select created_at,amount from credit_sales_purchases WHERE created_at LIKE '%2020-04-04%' AND business_user_id = '".$id."'  AND sales_purchases = '".$sales_purchases."' ) t group by created_at")->row_array();
-                $data = $this->db->query("select DATE_FORMAT(created_at,'%Y-%m-%d') as created_at,sum(amount) amount from ( select created_at,amount from daily_sales_purchases WHERE created_at LIKE '%$day%'  AND business_user_id = '".$id."'  AND sales_purchases = '".$sales_purchases."' union all select created_at,amount from credit_sales_purchases WHERE created_at LIKE '%$day%' AND business_user_id = '".$id."'  AND sales_purchases = '".$sales_purchases."' ) t group by created_at")->row_array();
-                   
-                  
-
-                    if(count($data)>0)
+                
+                   // $data = $this->db->query("select DATE_FORMAT(created_at,'%Y-%m-%d') as created_at,sum(amount) amount from ( select created_at,amount from daily_sales_purchases WHERE created_at LIKE '%$day%'  AND business_user_id = '".$id."'  AND sales_purchases = '".$sales_purchases."' union all select created_at,amount from credit_sales_purchases WHERE created_at LIKE '%$day%' AND business_user_id = '".$id."'  AND sales_purchases = '".$sales_purchases."' ) t group by created_at")->row_array();
+                // $data1 = "select DATE_FORMAT(created_at,'%Y-%m-%d') as created_at,sum(amount) amount from ( select created_at,amount from daily_sales_purchases WHERE created_at LIKE '%$day%'  AND business_user_id = '".$id."'  AND sales_purchases = '".$sales_purchases."' union all select created_at,amount from credit_sales_purchases WHERE created_at LIKE '%$day%' AND business_user_id = '".$id."'  AND sales_purchases = '".$sales_purchases."' ) t group by created_at";	
+                // echo $data1;die;
+                // print_r($data);die;
+                $data = $this->db->query("select DATE_FORMAT(date,'%Y-%m-%d') as created_at,sum(amount) amount from ( select date,amount from daily_sales_purchases WHERE date LIKE '%$day%'  AND business_user_id = '".$id."'  AND sales_purchases = '".$sales_purchases."' union all select date,amount from credit_sales_purchases WHERE date LIKE '%$day%' AND business_user_id = '".$id."'  AND sales_purchases = '".$sales_purchases."' ) t group by date")->row_array();
+                 
+                 if($data >= '0')
                     {
                         $result[] = $data;
                     }
@@ -1200,7 +1452,7 @@
                     $alldate = $e_date.' to '.$s_date;
                     // echo "SELECT DATE_FORMAT(created_at,'%Y-%m-%d') as created_at,amount from  daily_sales_purchases WHERE created_at >= '$eDate' AND created_at <= '$sDate' AND business_user_id='".$id."' AND  sales_purchases='".$sales_purchases."'";die;
                    // $data_result = $this->db->query("SELECT sum(amount) as amount from  daily_sales_purchases WHERE created_at >= '$eDate' AND created_at <= '$sDate' AND business_user_id='".$id."' AND  sales_purchases='".$sales_purchases."'")->result_array();
-                 $data_result = $this->db->query("SELECT sum(amount) amount from ( select amount from daily_sales_purchases WHERE created_at >= '$eDate' AND created_at <= '$sDate' AND business_user_id='".$id."' AND  sales_purchases='".$sales_purchases."' union all select amount from credit_sales_purchases WHERE created_at >= '$eDate' AND created_at <= '$sDate' AND business_user_id='".$id."' AND  sales_purchases='".$sales_purchases."')t")->result_array();
+                 $data_result = $this->db->query("SELECT sum(amount) amount from ( select amount from daily_sales_purchases WHERE date >= '$eDate' AND date <= '$sDate' AND business_user_id='".$id."' AND  sales_purchases='".$sales_purchases."' union all select amount from credit_sales_purchases WHERE date >= '$eDate' AND date <= '$sDate' AND business_user_id='".$id."' AND  sales_purchases='".$sales_purchases."')t")->result_array();
                     $gg = array_merge(array('created_at'=>$alldate),$data_result[0]);
                    
                     array_push($result,$gg);
@@ -1234,9 +1486,11 @@
                 foreach($date_array as $month_date)
                 {
                     $all_month = $month_date['created_at'];
-                    $data_month = $this->db->query("SELECT sum(amount) amount from ( select amount FROM  daily_sales_purchases WHERE MONTH(created_at) = '$all_month'  && business_user_id = '".$id."' && sales_purchases = '".$sales_purchases."' union all select amount from credit_sales_purchases WHERE MONTH(created_at) = '$all_month' && business_user_id = '".$id."' && sales_purchases = '".$sales_purchases."') t")->result_array();
+                	
+                    $data_month = $this->db->query("SELECT sum(amount) amount from ( select amount FROM  daily_sales_purchases WHERE MONTH(date) = '$all_month'  && business_user_id = '".$id."' && sales_purchases = '".$sales_purchases."' union all select amount from credit_sales_purchases WHERE MONTH(date) = '$all_month' && business_user_id = '".$id."' && sales_purchases = '".$sales_purchases."') t")->result_array();
                     //$data_month = $this->db->query("SELECT sum(amount) as amount FROM  daily_sales_purchases WHERE MONTH(created_at) = '$all_month'")->result_array();
-                    $gg = array_merge(array('created_at'=>$all_month),$data_month[0]);
+               
+                $gg = array_merge(array('created_at'=>$all_month),$data_month[0]);
                    
                     array_push($result,$gg);
                 }
@@ -1249,8 +1503,9 @@
            {
                
               // $year = $this->db->query("SELECT created_at ,sum(amount) as amount FROM daily_sales_purchases WHERE created_at > DATE_SUB(NOW(), INTERVAL 1 YEAR) && business_user_id = '".$id."' && sales_purchases = '".$sales_purchases."' group by created_at" )->result_array(); 
-              $year = $this->db->query("SELECT DATE_FORMAT(created_at,'%Y-%m-%d') as created_at,sum(amount) amount from ( select created_at,amount from  daily_sales_purchases WHERE created_at > DATE_SUB(NOW(), INTERVAL 1 YEAR) && business_user_id ='".$id."' && sales_purchases ='".$sales_purchases."'  union all select created_at,amount from credit_sales_purchases  WHERE created_at > DATE_SUB(NOW(), INTERVAL 1 YEAR) && business_user_id = '".$id."' && sales_purchases ='".$sales_purchases."')t group by created_at")->result_array();
-               for($i=0;$i<count($year); $i++)
+              $year = $this->db->query("SELECT DATE_FORMAT(date,'%Y-%m-%d') as created_at,sum(amount) amount from ( select date,amount from  daily_sales_purchases WHERE date > DATE_SUB(NOW(), INTERVAL 1 YEAR) && business_user_id ='".$id."' && sales_purchases ='".$sales_purchases."'  union all select date,amount from credit_sales_purchases  WHERE date > DATE_SUB(NOW(), INTERVAL 1 YEAR) && business_user_id = '".$id."' && sales_purchases ='".$sales_purchases."')t group by date")->result_array();
+            	
+            for($i=0;$i<count($year); $i++)
                {
                    $amount = $amount + $year[$i]['amount'];
                
@@ -1271,6 +1526,75 @@
             
 
         }
+    	 public function check_phone_no($phone,$role,$country_code)
+    	{
+            if($role == "user")
+            {
+                $this->db->select('*');
+                $this->db->where('phone',$phone);
+            	$this->db->where('country_code',$country_code);
+                $q=$this->db->get('business_register');
+                $count=$q->result();
+                return count($count);
+            }   
+            else
+            {
+                $this->db->select('*');
+                $this->db->where('phone',$phone);
+            	$this->db->where('country_code',$country_code);
+                $q=$this->db->get('superwiser_register');
+                $count=$q->result();
+                return count($count);
+            } 
+
+        }
+          public function update_otp($phone,$role,$country_code,$fourdigitrandom)
+	    {
+          // echo $phone1;die;
+            if($role == "user")
+            {
+                
+                $this->db->set('otp',$fourdigitrandom);
+                $this->db->where('phone',$phone);
+                $this->db->where('country_code',$country_code);
+                $update = $this->db->update('business_register');
+                return $update;
+            }
+            else
+            {
+               
+                $this->db->set('otp',$fourdigitrandom);
+                $this->db->where('phone',$phone);
+                $this->db->where('country_code',$country_code);
+                $update = $this->db->update('superwiser_register');
+                return $update;
+            }
+            
+        }
+    
+    	 public function check_otp($otp,$role)
+    	{
+            if($role == "user")
+            {
+                $this->db->select('*');
+                $this->db->where('otp',$otp);
+            	$this->db->where('role',$role);
+                $q=$this->db->get('business_register');
+                $count=$q->result();
+                return count($count);
+            }   
+            else
+            {
+                $this->db->select('*');
+                $this->db->where('otp',$otp);
+            	$this->db->where('role',$role);
+                $q=$this->db->get('superwiser_register');
+                $count=$q->result();
+                return count($count);
+            } 
+
+        }
+
     }  
     
     

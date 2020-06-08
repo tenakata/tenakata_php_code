@@ -5,7 +5,7 @@ if ($this->session->userdata['email'] == TRUE)
         }
         else
         {
-            redirect('login_admin'); //if session is not there, redirect to login page
+            redirect('index.php/login_admin'); //if session is not there, redirect to login page
         }
    include('header.php');?>
   <?php include('sidebar.php');?>
@@ -25,7 +25,7 @@ if ($this->session->userdata['email'] == TRUE)
 
                 </div>
                 <div class="ibox-tools">
-                            <a href="<?= base_url('user');?>"><button class="float-right btn btn-md btn-primary">Add Bussiness </button></a>
+                            <a href="<?= base_url('index.php/user');?>"><button class="float-right btn btn-md btn-primary">Add Bussiness </button></a>
                               
                             </div>
             </div>
@@ -35,8 +35,9 @@ if ($this->session->userdata['email'] == TRUE)
                 <div class="ibox float-e-margins">
                     <div class="ibox-title">
                    
-                    <a href="<?= base_url('user_export');?>"><button class="float-right btn btn-md btn-success" style="float: right;">Export </button></a>
-                    <form action="<?php echo base_url();?>user_list" method="GET" autocomplete="off">
+                    <a href="<?= base_url('index.php/user_export');?>"><button class="float-right btn btn-md btn-success" style="float: right;">Export </button></a>
+                     <a href="<?= base_url('index.php/user_delete_list');?>"><button class="float-right btn btn-md btn-primary" style="float: right;">Deleted </button></a>
+                    <form action="<?php echo base_url();?>index.php/user_list" method="GET" autocomplete="off">
                         Search : <input type="text" name="keyword" id="keyword" placeholder="Search Bussiness Name" required>
                         <button type="submit" class="btn btn btn-primary"> Go!</button> </span></div>
                         </form>
@@ -48,33 +49,33 @@ if ($this->session->userdata['email'] == TRUE)
                     <thead>
                     <tr>
                         <th>S.NO</th>
-                        <th>Business Name</th>
-                        <th>Phone</th>
-                        <th>Country Code</th>
-                        <th>Email</th>
-                        <th>Location</th>
-                        <th>Latitude</th>
-                        <th>Longitude</th>
-                        <th>Owner Name</th>
-                        <th>Business Registered	</th>
-                        <th>Registation No</th>
-                        <th>Gender</th>
-                        <th>Core Business</th>
-                        <th>Activities</th>
-                        <th>Business Date</th>
-                        <th>Branches</th>
-                        <th>Financial Institution</th>
-                        <th>Name</th>
-                        <th>Any Loan</th>
-                        <th>Loan Amount</th>
-                        <th>Loan Purpose</th>
-                        <th>Receive Payments</th>
-                        <th>Make Payments</th>
-                        <th>Busniness Funding</th>
-                        <th>Role</th>
-                        <th>Supervisor Name</th>
-                        <th>Image</th>
-                        <th>Action</th>
+                        <th style="text-align: center;">Business Name</th>
+                        <th style="text-align: center;">Phone</th>
+                        <th style="text-align: center;">Country Code</th>
+                        <th style="text-align: center;">Email</th>
+                        <th style="text-align: center;">Location</th>
+                        <th style="text-align: center;">Latitude</th>
+                        <th style="text-align: center;">Longitude</th>
+                        <th style="text-align: center;">Owner Name</th>
+                        <th style="text-align: center;">Business Registered	</th>
+                        <th style="text-align: center;">Registation No</th>
+                        <th style="text-align: center;">Gender</th>
+                        <th style="text-align: center;">Core Business</th>
+                        <th style="text-align: center;">Activities</th>
+                        <th style="text-align: center;">Business Date</th>
+                        <th style="text-align: center;">Branches</th>
+                        <th style="text-align: center;">Financial Institution</th>
+                        <th style="text-align: center;">Name</th>
+                        <th style="text-align: center;">Any Loan</th>
+                        <th style="text-align: center;">Loan Amount</th>
+                        <th style="text-align: center;">Loan Purpose</th>
+                        <th style="text-align: center;">Receive Payments</th>
+                        <th style="text-align: center;">Make Payments</th>
+                        <th style="text-align: center;">Busniness Funding</th>
+                        <th style="text-align: center;">Role</th>
+                        <th style="text-align: center;">Supervisor Name</th>
+                        <th style="text-align: center;">Image</th>
+                        <th style="text-align: center;">Action</th>
                        
                     </tr>
                    
@@ -85,14 +86,9 @@ if ($this->session->userdata['email'] == TRUE)
                     $i=1;
                     foreach($user_list as $row){
                        
-                        if ($row['status'] == 0) {
-                            $bgColor = ' style="background-color:#A9A9A9;" color: white;';
-                            
-                        } else {
-                            $bgColor = ' style="background-color:white;" color: white;';
-                        }
+                        	$enc_charges_id = str_replace("/","-",$this->encryption->encrypt($row['id']));
                         ?>
-                    <tr class="gradeX" <?php echo $bgColor;?>>
+                    <tr class="gradeX">
                     <td><?php echo $i++;?></td>
                     <td><?php echo $row['business_name'];?> </td>
                     <td><?php echo $row['phone'];?> </td>
@@ -121,9 +117,9 @@ if ($this->session->userdata['email'] == TRUE)
                     <td><?php echo $row['superwiser_name'];?> </td>
                    <td><img src="<?php echo $row['image'];?>" width="40" height="30"> </td>
                    <td>
-                        <a href="<?php  echo base_url().'assign_user/'.$row['id']?>"><button type="button" class="btn btn-outline btn-success"><i class="fa fa-edit"></i>Assign</button></a>&nbsp;&nbsp;
+                        <a href="<?php  echo base_url().'index.php/assign_user/'.$enc_charges_id?>"><button type="button" class="btn btn-outline btn-success"><i class="fa fa-edit"></i>Assign</button></a>&nbsp;&nbsp;
                         <a href="#" class="delete_data" id="<?php  echo $row['id']?>"><button type="button" class="btn btn-outline btn-info"><i class="fa fa-trash-o"></i> Remove</button></a>
-                        <a href="<?php  echo base_url().'supervisor_history/'.$row['id']?>"><button type="button" class="btn btn-outline btn-warning"><i class="fa fa-edit"></i>Supervisor History</button></a>
+                        <a href="<?php  echo base_url().'index.php/supervisor_history/'.$enc_charges_id?>"><button type="button" class="btn btn-outline btn-warning"><i class="fa fa-edit"></i>Supervisor History</button></a>
                      </tr>
                     <?php
                     }
@@ -141,7 +137,12 @@ if ($this->session->userdata['email'] == TRUE)
             </div>
             </div>
            
-        </div>
+  <div class="footer">
+                    
+                    <div>
+                        <center><strong>Copyright Tenakata &copy; <?php echo date('Y');?> </strong></center>
+                    </div>
+                </div>
         <script type="text/javascript"   src="https://cdn.datatables.net/1.10.15/js/jquery.dataTables.min.js"></script>
 
 <script type="text/javascript">
@@ -244,7 +245,7 @@ if ($this->session->userdata['email'] == TRUE)
                 var id =$(this).attr("id");
                 if(confirm("Are you sure to Remove record?"))
                 {
-                    window.location="<?php echo base_url();?>Admin/Delete_user/"+id;
+                    window.location="<?php echo base_url();?>index.php/Admin/Delete_user/"+id;
                 }
                 else
                 {

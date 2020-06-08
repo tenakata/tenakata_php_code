@@ -4,6 +4,7 @@
 		public function __construct()
 		{
 			parent ::__construct();
+        	$this->table = 'admin';
 			
 		}
 		
@@ -55,6 +56,7 @@
 	{
 		$this->db->select('*');
 		$this->db->from('superwiser_register');
+    	$this->db->where('status','1');
 		return $this->db->get()->result_array();
 	}
 	
@@ -71,6 +73,27 @@
 		$this->db->from('superwiser_register');
 		$this->db->where('id',$id);
 		return $this->db->get()->result_array();
+	}
+    public function user_delete_list()
+	{
+		$this->db->select('business_register.id,business_register.latitude,business_register.longitude,business_register.business_name,business_register.name,business_register.phone,business_register.country_code,business_register.location,business_register.image,business_register.role,business_register.owner_name,business_register.business_registered,business_register.registation_no,business_register.gender,business_register.core_business,business_register.activities,business_register.business_date,business_register.no_of_employees,business_register.branches,business_register.financial_institution,business_register.any_loan,business_register.loan_amount,business_register.loan_purpose,business_register.receive_payments,business_register.make_payments,business_register.busniness_funding,business_register.email,business_register.supervisor_id,superwiser_register.name as superwiser_name,business_register.status');
+		$this->db->from('business_register');
+		$this->db->join('superwiser_register', 'superwiser_register.id = business_register.supervisor_id');
+			$this->db->where('business_register.status','0');
+		return $this->db->get()->result_array();
+	}
+	public function Delete_user_all($id)
+	{
+		$this->db->where('id',$id);
+		$update =  $this->db->delete('business_register');
+		if($update)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 	}
 	public function update_with_image_supervisor($data)
 	{
@@ -117,6 +140,26 @@
 		$this->db->from('superwiser_register');
 		$this->db->where('id',$id);
 		return $this->db->get()->result_array();
+	}
+    public function supervisor_all_list()
+	{
+		$this->db->select('*');
+		$this->db->from('superwiser_register');
+		$this->db->where('status','0');
+		return $this->db->get()->result_array();
+	}
+    public function Delete_supervisor_all($id)
+	{
+		$this->db->where('id',$id);
+		$update =  $this->db->delete('superwiser_register');
+		if($update)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 	}
 	public function supervisor_password_update($data)
 	{
@@ -190,6 +233,7 @@
         }
 		$this->db->order_by("id", "desc");
 		$this->db->limit($limit, $offset);
+    	$this->db->where('business_register.status','1');
 		return $this->db->get()->result_array();
 	}
 
@@ -652,6 +696,59 @@
 		{
 			return false;
 		}
+	}
+    
+    public function showdata_data()
+    {
+    	$this->db->select('*');
+    	$this->db->from('admin');
+    	return $this->db->get()->result_array();
+    	
+    }
+   
+	public function update_with_out_image_profile($where,$data)
+	{
+		$this->db->set('fname',$data['fname']);	
+    	$this->db->set('lname',$data['lname']);
+		$this->db->set('phone',$data['phone']);
+		$this->db->where('id',$where['id']);
+    	$this->db->where('email',$where['email']);
+        $update = $this->db->update('admin');
+		if($update)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+    public function update_with_image_profile($where,$data)
+	{
+		$this->db->set('fname',$data['fname']);	
+    	$this->db->set('lname',$data['lname']);	
+		$this->db->set('phone',$data['phone']);	
+		$this->db->set('image',$data['image']);	
+		$this->db->set('publicid_img',$data['publicid_img']);	
+       	$this->db->where('id',$where['id']);
+    	$this->db->where('email',$where['email']);
+        $update = $this->db->update('admin');
+		if($update)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+    public function get_profile1($login_email)
+    {
+		
+		$this->db->select('*');
+    	$this->db->from('admin');
+    	$this->db->where('email',$login_email);
+    	return $this->db->get()->result_array();
 	}
     
     

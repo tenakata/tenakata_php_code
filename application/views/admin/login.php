@@ -134,7 +134,7 @@
           		?>
 				<div class="d-flex justify-content-center form_container">
 				
-					 <form method="POST" action="<?php echo base_url('admin_login');?>"  class="form-horizontal" autocomplete="off">
+					 <form method="POST" action="<?php echo base_url('index.php/admin_login');?>"  class="form-horizontal" autocomplete="off">
 						<div class="input-group mb-3">
 							<div class="input-group-append">
 								<span class="input-group-text"><i class="fas fa-user"></i></span>
