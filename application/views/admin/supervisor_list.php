@@ -78,7 +78,7 @@ if ($this->session->userdata['email'] == TRUE)
                     <td style="text-align: center;"><?php echo $row['phone'];?> </td>
                     <td style="text-align: center;"><?php echo $row['country_code'];?> </td>
                     <td style="text-align: center;"><?php echo $row['role'];?> </td>
-                    <td style="text-align: center;"><img src="<?php echo $row['image'];?>" width="40" height="30"> </td>
+                  <td><img src="<?php echo base_url();?>upload/<?php echo $row['image'];?>" width="80" height="80"></td>
                     <td style="text-align: center;">
                            <a href="<?php  echo base_url().'index.php/view_supervisor/'.$enc_charges_id?>"><button type="button" class="btn btn-outline btn-warning"><i class="fa fa-edit"></i> Edit</button></a>
                          &nbsp;&nbsp;

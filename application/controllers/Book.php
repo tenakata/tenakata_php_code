@@ -16,6 +16,7 @@ class Book extends REST_Controller {
 		$this->load->library('cloudinarylib');
 		$this->load->model('Book_model');
 		$this->load->helper('string');
+     	
 	}
 
 //============================================ USER =================================================================
@@ -63,6 +64,7 @@ public function login_post()
 			];
       // print_r($login_data);die;
 			$login = $this->Book_model->logindata($login_data);
+      		
 			if(count($login) > 0 )
 			{
 				  $data['status'] = '200';
@@ -405,9 +407,14 @@ public function forget_password_post()
 			$latitude = $this->input->post('latitude');
 			$longitude = $this->input->post('longitude');
 
-			$filename = $_FILES['image']['name'];
-			$result['upload_image'] = \Cloudinary\Uploader::upload($image_object);
-			$check_signup = $this->Book_model->check_signup($business_name,$supervisor_id);
+			$config['upload_path']   = './upload/';
+            $config['allowed_types'] = 'gif|jpg|png';
+            $config['max_size']      = 1000;
+            $this->load->library('upload', $config);
+            
+            if ($this->upload->do_upload('image')) {
+                $imagedetails = $this->upload->data();
+                $imagepath    = $imagedetails['file_name'];
 			
 			$signup= array(
 				'supervisor_id' => $_POST['supervisor_id'],
@@ -436,12 +443,10 @@ public function forget_password_post()
 				'latitude' => $_POST['latitude'],
 				'longitude' => $_POST['longitude'],
 				'busniness_funding' => $_POST['busniness_funding'],
-				'updated_at' => date('Y-m-d H:m:i'),
-				'image' => $result['upload_image']['url'],
-				'public_id' => $result['upload_image']['public_id']
+				'updated_at' => date('Y-m-d H:m:i')
 				
 			);
-       	    
+       	     $signup['image']  = $imagepath;
        		$mm = ucfirst($owner_name).' '."Karibu Tenakata.";
        		$username = $name;
             $password = $password;
@@ -485,6 +490,8 @@ public function forget_password_post()
             // echo $response;
             }
 			// print_r($signup);die;
+			$path = "http://ec2-18-219-231-177.us-east-2.compute.amazonaws.com/upload/";
+			$signup['image'] = $path.''.$signup['image'];
 			$sign_up = $this->Book_model->sign_up($signup);
 			if($sign_up == true )
 			{
@@ -502,6 +509,7 @@ public function forget_password_post()
 			   echo json_encode($data); 
 			   
 			}
+            }
 		
 	   }
 	}
@@ -548,10 +556,16 @@ public function dailysale_purchases_post()
 				$payment_type = $this->input->post('payment_type');
         		$id_no = $this->input->post('id_no');
 				$sales_purchases = $this->input->post('sales_purchases');
-				$filename = $_FILES['attach_recepit']['name'];
-				$tmp_name = $_FILES['attach_recepit']['tmp_name'];
-				$result['upload_image'] = \Cloudinary\Uploader::upload($tmp_name);
-
+				
+			
+        		$config['upload_path']   = './upload/';
+           		$config['allowed_types'] = 'gif|jpg|png';
+            	$config['max_size']      = 1000;
+            	$this->load->library('upload', $config);
+            
+            	if ($this->upload->do_upload('attach_recepit')) {
+                $imagedetails = $this->upload->data();
+                $imagepath    = $imagedetails['file_name'];
 			
 				$sales_purchasess= array(
 					'business_user_id' => $_POST['user_id'],
@@ -564,14 +578,15 @@ public function dailysale_purchases_post()
 					'payment_type' => $_POST['payment_type'],
                 	'id_no' => $_POST['id_no'],
 					'sales_purchases' => $_POST['sales_purchases'],
-					'attach_recepit' => $result['upload_image']['url'],
-					'public_id' => $result['upload_image']['public_id'],
 					'updated_at' => date('Y-m-d H:m:i'),
 					'created_at' => date('Y-m-d')
 					
 				);
+                $sales_purchasess['attach_recepit']  = $imagepath;
+                $path = "http://ec2-18-219-231-177.us-east-2.compute.amazonaws.com/upload/";
+				$sales_purchasess['attach_recepit'] = $path.''. $sales_purchasess['attach_recepit'];
 				$sale_purchases = $this->Book_model->sale_purchases($sales_purchasess);
-        		
+                }
 				if($sale_purchases == true )
 				{
 					
@@ -590,6 +605,7 @@ public function dailysale_purchases_post()
 	   $data['message'] = 'Unauthorised Access';
 	   echo json_encode($data); 
 	}
+    
 }
 
 
@@ -707,9 +723,14 @@ public function credit_sale_purchases_post()
 			$item_list = $this->input->post('item_list');
 			$payment_type = $this->input->post('payment_type');
 			$sales_purchases = $this->input->post('sales_purchases');
-			$filename = $_FILES['attach_recepit']['name'];
-			$tmp_name = $_FILES['attach_recepit']['tmp_name'];
-			$result['upload_image'] = \Cloudinary\Uploader::upload($tmp_name);
+			$config['upload_path']   = './upload/';
+            $config['allowed_types'] = 'gif|jpg|png';
+            $config['max_size']      = 1000;
+            $this->load->library('upload', $config);
+            
+            if ($this->upload->do_upload('attach_recepit')) {
+                $imagedetails = $this->upload->data();
+                $imagepath    = $imagedetails['file_name'];
 
 			
 				$credit_sale_purchases= array(
@@ -723,13 +744,16 @@ public function credit_sale_purchases_post()
 					'item_list' => $_POST['item_list'],
 					'payment_type' => $_POST['payment_type'],
 					'sales_purchases' => $_POST['sales_purchases'],
-					'attach_recepit' => $result['upload_image']['url'],
-					'public_id' => $result['upload_image']['public_id'],
 					'updated_at' => date('Y-m-d H:m:i'),
 					'created_at' => date('Y-m-d')
 					
 				);
+             
+            $credit_sale_purchases['attach_recepit']  = $imagepath;
+            $path = "http://ec2-18-219-231-177.us-east-2.compute.amazonaws.com/upload/";
+			$credit_sale_purchases['attach_recepit'] = $path.''.$credit_sale_purchases['attach_recepit'];
 			$credits_sale_purchases = $this->Book_model->credit_sale_purchases($credit_sale_purchases);
+            }
 			if($credits_sale_purchases == true )
 			{
 				$merge = array_merge($credit_sale_purchases,array("id"=>$credits_sale_purchases));
@@ -1276,8 +1300,14 @@ public function remind_post()
         
         	// print_r($sms);die;
         	
-        	
-            $message = $sms['query'][0]['message'];
+        	if($sms['query'][0]['message'] == '')
+            {
+            	$message = '';
+            }
+        	else
+            {
+            	$message = $sms['query'][0]['message'];
+            }
         	$phone = $sms['query2'][0]['phone'];
         	$country_code = $sms['query2'][0]['country_code'];
         	
@@ -1485,31 +1515,85 @@ public function business_details_post()
 			$shop_id = json_encode($request["shop_id"],JSON_NUMERIC_CHECK);	
 			$business_details = $this->Book_model->business_details_list($shop_id);
 			
-			
+// 			print_r($business_details);die;
+				if(is_array($business_details['cash_sale']) == 0)
+                {
+                	$amount = $business_details['cash_sale'];
+                	$c = 0;
+                }
+        		else
+                {
+					$amount = $business_details['cash_sale'];
+                	
+        			$c= count($amount);
+                	
+                	
+                }
+        		if(is_array($business_details['cash_purchase']) == 0)
+                {
+                	$cash_amount = $business_details['cash_purchase'];
+                	$c1 = 0;
+                }
+        		else
+                {
+                	$cash_amount = $business_details['cash_purchase'];
+					$c1= count($cash_amount);
+                }
 				
-				$amount = $business_details['cash_sale'];
-				$c= count($amount);
-				$cash_amount = $business_details['cash_purchase'];
-				$c1= count($cash_amount);
 				$a = $c + $c1;
 				
 				
-
-				$amount1 = $business_details['credit_sale'];
-				$c2= count($amount1);
-				$credit_amount = $business_details['credit_purchase'];
-				$c3= count($credit_amount);
+				if(is_array($business_details['credit_sale']) == 0)
+                {
+                	$amount1 = $business_details['credit_sale'];
+                	$c2 = 0;
+                }
+        		else
+                {
+                	$amount1 = $business_details['credit_sale'];
+					$c2= count($amount1);
+                }
+        
+        		if(is_array($business_details['credit_purchase']) == 0)
+                {
+                	$credit_amount = $business_details['credit_purchase'];
+                	$c3 = 0;
+                }
+				else
+                {
+                	$credit_amount = $business_details['credit_purchase'];
+					$c3= count($credit_amount);
+                }
+				
 				$credit = $amount+$credit_amount;
 				$add = $c2 + $c3;
 				$cash = $amount+$amount1;
 				
-				$average = $cash / $a;
-				$av = $average;
+//         		if($a == 0)
+//                 {
+//                 	$av = 0;
+//                 }
+//         		else
+//                 {
+//                 	$average = $cash / 2;
+// 					$av = $average;
+//                 }
+				$average = $cash / 2;
+					$av = $average;
 			
 				$credit = $cash_amount+$credit_amount;
-			
-				$average = $credit / $add;
-				$av1 = $average;
+				// if($add == 0)
+				// {
+				// $av1 = 0;
+				// }
+				// else
+				// {
+				// $average = $credit / 2;
+				// 	$av1 = $average;	
+				// }
+				$average = $credit / 2;
+					$av1 = $average;	
+				
 				
 				
 			
@@ -1810,23 +1894,28 @@ public function profile_post()
 			}
 			else
 			{
-				$filename = $_FILES['image']['name'];
-				$tmp_name = $_FILES['image']['tmp_name'];
-				$result['upload_image'] = \Cloudinary\Uploader::upload($tmp_name);
+				$config['upload_path']   = './upload/';
+            	$config['allowed_types'] = 'gif|jpg|png';
+            	$config['max_size']      = 1000;
+            	$this->load->library('upload', $config);
+            
+           		 if ($this->upload->do_upload('image')) {
+                $imagedetails = $this->upload->data();
+                $imagepath    = $imagedetails['file_name'];
 				$profile= array(
 					'id' => $_POST['user_id'],
 					'owner_name' => $_POST['name'],
 					'email' => $_POST['email'],
 					'role' => $_POST['role'],
-					'image' => $result['upload_image']['url'],
-					'public_id' => $result['upload_image']['public_id'],
 					'updated_at' => date('Y-m-d H:m:i')
 					
 				);
 			}
-		
+            }
+         	$profile['image']  = $imagepath;
 
-		
+			$path = "http://ec2-18-219-231-177.us-east-2.compute.amazonaws.com/upload/";
+			$profile['image'] = $path.''.$profile['image'];
 				
 			$profiles = $this->Book_model->profile($profile);
 			$data['status'] = '200';
@@ -2275,4 +2364,5 @@ public function check_otp_post()
       }
 			
     }
+	 
 }

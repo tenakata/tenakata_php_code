@@ -115,7 +115,7 @@ if ($this->session->userdata['email'] == TRUE)
                     <td><?php echo $row['busniness_funding'];?> </td>
                     <td><?php echo $row['role'];?> </td>
                     <td><?php echo $row['superwiser_name'];?> </td>
-                   <td><img src="<?php echo $row['image'];?>" width="40" height="30"> </td>
+                        <td><img src="<?php echo base_url();?>upload/<?php echo $row['image'];?>" width="80" height="80"></td>
                    <td>
                         <a href="<?php  echo base_url().'index.php/assign_user/'.$enc_charges_id?>"><button type="button" class="btn btn-outline btn-success"><i class="fa fa-edit"></i>Assign</button></a>&nbsp;&nbsp;
                         <a href="#" class="delete_data" id="<?php  echo $row['id']?>"><button type="button" class="btn btn-outline btn-info"><i class="fa fa-trash-o"></i> Remove</button></a>

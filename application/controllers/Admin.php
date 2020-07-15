@@ -12,6 +12,7 @@ class Admin extends CI_Controller {
             $this->load->helper(array('form','url'));
             $this->load->model('Login_model');
             $this->load->library('cloudinarylib');
+       
 		}
     }
     
@@ -53,7 +54,7 @@ class Admin extends CI_Controller {
             // var_dump($data);die;
             $this->load->model('Login_model');
             $result   = $this->Login_model->logindata($data);
-		
+		// print_r($result);die;
         if (!empty($result)) 
         {
             $this->session->set_userdata("email", $result['email']);
@@ -162,30 +163,36 @@ class Admin extends CI_Controller {
        if ($this->form_validation->run() == True) 
        {
             $this->load->model('Login_model');
-            $this->load->library('cloudinarylib');
+            
             $name     = html_escape(trim($this->input->post('name', TRUE)));
             $email     = html_escape(trim($this->input->post('email', TRUE)));
             $phone     = html_escape(trim($this->input->post('phone', TRUE)));
             $country_code     = html_escape(trim($this->input->post('country_code', TRUE)));
             $role     = html_escape(trim($this->input->post('role', TRUE)));
             $password     = html_escape(trim($this->input->post('password', TRUE)));
-            $filename = $_FILES['image']['name'];
-			$tmp_name = $_FILES['image']['tmp_name'];
-            $result['upload_image'] = \Cloudinary\Uploader::upload($tmp_name);
-                
-            $data = array( 
-                
-                'name' =>$name,
-                'email' => $email,
-                'phone' => $phone,
-                'country_code' => $country_code,
-                'role' => $role,
-                'password' => $password,
-                'image' => $result['upload_image']['url'],
-                'public_id' => $result['upload_image']['public_id'],
-                'updated_at' => date('Y-m-d H:m:i')
-                
-            );
+            
+      
+        	$config['upload_path']   = './upload/';
+            $config['allowed_types'] = 'gif|jpg|png';
+            $config['max_size']      = 1000;
+            $config['max_width']     = 3024;
+            $config['max_height']    = 2068;
+            $this->load->library('upload', $config);
+            
+            if ($this->upload->do_upload('image')) {
+                $imagedetails = $this->upload->data();
+                $imagepath    = $imagedetails['file_name'];
+                $data         = array(
+                  
+                    'name' => $name,
+                    'email' => $email,
+                     'phone' => $phone,
+               		 'country_code' => $country_code,
+               		 'role' => $role,
+                	'password' => $password,
+                );
+                $data['image']  = $imagepath;
+          
            
            
        
@@ -245,6 +252,7 @@ class Admin extends CI_Controller {
                 $this->load->view('supervisor');
             }
         } 
+       }
         else 
         {
             $this->load->model('Login_model');
@@ -313,21 +321,28 @@ class Admin extends CI_Controller {
                 
             } else {
 
-                $this->load->library('cloudinarylib');
-                $filename = $_FILES['image']['name'];
-			    $tmp_name = $_FILES['image']['tmp_name'];
-                $result['upload_image'] = \Cloudinary\Uploader::upload($tmp_name);
-                
-                $data = array(
-                    'id' => $_POST['id'],
-                    'name' => $_POST['name'],
-                    'email' => $_POST['email'],
-                    'phone' => $_POST['phone'],
-                    'country_code' => $_POST['country_code'],
-                    'image' => $result['upload_image']['url'],
-                    'public_id' => $result['upload_image']['public_id'],
-                    'updated_at' => date('Y-m-d H:m:i')
-                );
+               
+             	$config['upload_path']   = './upload/';
+            	$config['allowed_types'] = 'gif|jpg|png';
+            	$config['max_size']      = 1000;
+            	$config['max_width']     = 3024;
+            	$config['max_height']    = 2068;
+            	$this->load->library('upload', $config);
+            
+            if ($this->upload->do_upload('image')) {
+                $imagedetails = $this->upload->data();
+                $imagepath    = $imagedetails['file_name'];
+                $data         = array(
+                  			 
+                   			'id' => $_POST['id'],
+                    		'name' => $_POST['name'],
+                    		'email' => $_POST['email'],
+                    		'phone' => $_POST['phone'],
+                    		'country_code' => $_POST['country_code'],
+                    		'role' => $_POST['role'],
+                    		'updated_at' => date('Y-m-d H:m:i')
+               			 );
+                $data['image']  = $imagepath;
                 // print_r($data);die;
                 $this->load->model('Login_model');
                 $res = $this->Login_model->update_with_image_supervisor($data);
@@ -340,6 +355,7 @@ class Admin extends CI_Controller {
                     $this->session->set_flashdata('message', 'Some Error');
                     redirect('index.php/supervisor_list');
                 }
+            }
             }
        
     }
@@ -706,7 +722,7 @@ class Admin extends CI_Controller {
        {
             $this->load->helper('string');
             $this->load->model('Login_model');
-            $this->load->library('cloudinarylib');
+          
             $bussiness_name     = html_escape(trim($this->input->post('bussiness_name', TRUE)));
             $owner_name     = html_escape(trim($this->input->post('owner_name', TRUE)));
             $phone     = html_escape(trim($this->input->post('phone', TRUE)));
@@ -731,9 +747,7 @@ class Admin extends CI_Controller {
             $supervisor_id     = $this->input->post('supervisor_id', TRUE);
             $core_business     = $this->input->post('core_business', TRUE);
             $password = random_string('alnum',7);
-            $filename = $_FILES['image']['name'];
-			$tmp_name = $_FILES['image']['tmp_name'];
-            $result['upload_image'] = \Cloudinary\Uploader::upload($tmp_name);
+           
 			
       
       			
@@ -758,7 +772,16 @@ class Admin extends CI_Controller {
 
             
             
-                
+            $config['upload_path']   = './upload/';
+            $config['allowed_types'] = 'gif|jpg|png';
+            $config['max_size']      = 1000;
+            $config['max_width']     = 3024;
+            $config['max_height']    = 2068;
+            $this->load->library('upload', $config);
+            
+            if ($this->upload->do_upload('image')) {
+                $imagedetails = $this->upload->data();
+                $imagepath    = $imagedetails['file_name'];    
             $data = array(
                 
                 'business_name' =>$bussiness_name,
@@ -785,12 +808,10 @@ class Admin extends CI_Controller {
                 'busniness_funding' => $busniness_funding,
                 'supervisor_id' => $supervisor_id,
                 'core_business' => $core_business,
-                'image' => $result['upload_image']['url'],
-                'public_id' => $result['upload_image']['public_id'],
                 'updated_at' => date('Y-m-d H:m:i')
                 
             );
-      	
+      	    $data['image']  = $imagepath;
       		$mm = ucfirst($owner_name).' '."Karibu Tenakata.";
        		$username = $name;
             $password = $password;
@@ -845,6 +866,7 @@ class Admin extends CI_Controller {
             {
                 $this->session->set_flashdata('message', 'Some Error');
                 $this->load->view('index.php/user');
+            }
             }
         } 
         else 
@@ -1560,35 +1582,41 @@ class Admin extends CI_Controller {
 		
 			 
 
-		if($_FILES['image']['tmp_name'] != ''){
-			$this->load->library('cloudinarylib');
-			$filename=$_FILES['image']['name'];
-			$tmp_name=$_FILES['image']['tmp_name'];
-			 $result['upload_image'] = \Cloudinary\Uploader::upload($tmp_name);
+		  $config['upload_path']   = './upload/';
+            $config['allowed_types'] = 'gif|jpg|png';
+            $config['max_size']      = 1000;
+            $config['max_width']     = 3024;
+            $config['max_height']    = 2068;
+            $this->load->library('upload', $config);
+            
+            if ($this->upload->do_upload('image')) {
+                $imagedetails = $this->upload->data();
+                $imagepath    = $imagedetails['file_name'];  
 			$data = array(
 							'fname' => $fname,
 							'lname' =>$lname,
 							'phone' => $phone,
-							'image' => $result['upload_image']['url'],
-							'publicid_img' => $result['upload_image']['public_id']
+							
 
 						);
+              $data['image']  = $imagepath;
 			$where = array(
 							'email' => $this->session->userdata['email'],
 							'id' =>$id
 						);
         	$this->load->model('Login_model');
 			 $return = $this->Login_model->update_with_image_profile($where,$data);
+       
 			 if($return){
 				 $this->session->set_userdata('fname',$fname);
 				 $this->session->set_userdata('lname',$lname);
 				 $this->session->set_userdata('image_url',$image_url[0]['image']);
 				 $this->session->set_flashdata('msg','Profile Update Sussessfully.');
-				 redirect('index.php/admin_profile','refresh');
+				 redirect('index.php/Admin','refresh');
 			 }
 			 else{
 				 $this->session->set_flashdata('msg','Some Problem.Try Again!!');
-				 redirect('index.php/admin_profile','refresh');
+				 redirect('index.php/Admin','refresh');
 			 }
 
 		}else{
@@ -1604,21 +1632,27 @@ class Admin extends CI_Controller {
 			);
         	$this->load->model('Login_model');
  			$return = $this->Login_model->update_with_out_image_profile($where,$data);
+        	
  			if($return){
 				$this->session->set_userdata('fname',$fname);
 				$this->session->set_userdata('lname',$lname);
-				$this->session->set_userdata('image_url',$image_url[0]['image']);
+			
 				$this->session->set_flashdata('msg','Profile Update Sussessfully.');
-				redirect('index.php/admin_profile','refresh');
+				redirect('index.php/Admin','refresh');
 			}
 			else{
 				$this->session->set_flashdata('msg','Some Problem.Try Again!!');
-				redirect('index.php/admin_profile','refresh');
+				redirect('index.php/Admin','refresh');
 			}
 				
 		}
 
 	}
+ function testmail()
+ {
+    $this->load->helper('api_helper');
+      echo sendEmail('wsiankit1625@gmail.com','ankittiwari665@gmail.com','subject hi','test mail');
+    }
 
    
 

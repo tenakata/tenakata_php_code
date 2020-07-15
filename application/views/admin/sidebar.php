@@ -1,6 +1,8 @@
 <?php
 $fname = $this->session->userdata['fname'];
 $lname = $this->session->userdata['lname'];
+$image = $this->session->userdata['image'];
+
 
 
 
@@ -14,9 +16,9 @@ $lname = $this->session->userdata['lname'];
                     <li class="nav-header">
                         <div class="dropdown profile-element"> <span>
                       
-                        <img alt="image" class="img-circle" <?php if($this->session->userdata('image_url')){ ?>src="<?php echo $this->session->userdata('image_url');?>" <?php }else{ ?> src="<?php echo base_url('assest/')?>download.png"<?php } ?> style="margin-left: 38px;width:60px;height:60px;"/>
+                       <img alt="image" class="img-circle" <?php if($image){ ?>src="<?php echo base_url();?>upload/<?php echo $image;?>" <?php }else{ ?> src="<?php echo base_url('assest/img/')?>profile_small.jpg"<?php } ?> style="margin-left: 38px;width:60px;height:60px;"/>
                   </span>
-                            
+                                 
                              </span>
                             <a data-toggle="dropdown" class="dropdown-toggle" href="#">
                            

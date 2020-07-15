@@ -47,8 +47,9 @@ if ($this->session->userdata['email'] == TRUE)
                            <?php echo form_open_multipart('index.php/Admin/updateProfile','autocomplete="off" id="frm"'); ?>
                            <div class="product" style="margin-left:260px; margin-top:10px;">
                               <?php if(!empty($showdata_data[0]['image'])){ ?>
-                              <img alt="image" class="img-circle" src="<?php echo $showdata_data[0]['image'];?>" width="260px;" height="260px;" alt="Profile" id="f_image" />
+                              <img alt="image" class="img-circle" src="<?php echo base_url();?>upload/<?php echo $showdata_data[0]['image'];?>" width="260px;" height="260px;" alt="Profile" id="f_image" />
                            <?php }else{ ?>
+                                 <td><img src="<?php echo base_url();?>upload/<?php echo $row['image'];?>" width="80" height="80"></td>
 
                                  <img alt="image2" class="img-circle" src="<?php echo base_url();?>assets/download.png" width="260px;" height="260px;" alt="Profile" id="f_image"/>
 

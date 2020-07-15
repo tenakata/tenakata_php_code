@@ -105,7 +105,7 @@ if ($this->session->userdata['email'] == TRUE)
                                  <?php echo form_error('role') ?>
                                  </div>
                                 </div>
-                                <img src="<?php echo $values['image'];?>" width="80" height="80"> 
+                                   <td><img src="<?php echo base_url();?>upload/<?php echo $values['image'];?>" width="80" height="80"></td>
                                 <div class="form-group">
                                   <div class="col-md-12"><label class="control-label">Select Image</label></div>
                                   <div class="col-md-5">

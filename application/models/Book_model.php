@@ -6,7 +6,7 @@
 	    {
            if($data['role'] == "user")
             {
-                $this->db->select('id,owner_name as name,phone,country_code,role,image,status');
+                $this->db->select('id,owner_name as name,phone,country_code,role,CONCAT("http://ec2-18-219-231-177.us-east-2.compute.amazonaws.com/upload/",image) as image ,status');
                 $this->db->from('business_register');
                 $this->db->where('phone',$data['phone']);
                 $this->db->where('password',$data['password']);
@@ -35,7 +35,7 @@
             else
             {
             	
-                $this->db->select('id,name,email,phone,country_code,role,image,status');
+                $this->db->select('id,name,email,phone,country_code,role,CONCAT("http://ec2-18-219-231-177.us-east-2.compute.amazonaws.com/upload/",image) as image,status');
                 $this->db->from('superwiser_register');
                 $this->db->where('phone',$data['phone']);
                 $this->db->where('password',$data['password']);
@@ -784,7 +784,7 @@
         {
             if($payment_type == 'cash')
             {
-                $this->db->select('id,id_no,date,attach_recepit,item_list,amount,sales_purchases,business_user_id');
+                $this->db->select('id,id_no,date,CONCAT("http://ec2-18-219-231-177.us-east-2.compute.amazonaws.com/upload/",attach_recepit) as attach_recepit,item_list,amount,sales_purchases,business_user_id');
                 $this->db->where('id', $id);
                 $this->db->where('payment_type', $payment_type);
                 $this->db->where('sales_purchases', $sales_purchases);
@@ -811,7 +811,7 @@
             }
             else 
             {
-                $this->db->select('id,name,phone,id_no,date,attach_recepit,item_list,amount,sales_purchases,business_user_id');
+                $this->db->select('id,name,phone,id_no,date,CONCAT("http://ec2-18-219-231-177.us-east-2.compute.amazonaws.com/upload/",attach_recepit) as attach_recepit,item_list,amount,sales_purchases,business_user_id');
                 $this->db->where('id', $id);
                 $this->db->where('payment_type', $payment_type);
                 $this->db->where('sales_purchases', $sales_purchases);
@@ -843,7 +843,7 @@
         {
             if($payment_type == 'cash')
             {
-                $this->db->select('id,attach_recepit,date,id_no,item_list,name,amount,phone,country_code,sales_purchases');
+                $this->db->select('id,CONCAT("http://ec2-18-219-231-177.us-east-2.compute.amazonaws.com/upload/",attach_recepit) as attach_recepit,date,id_no,item_list,name,amount,phone,country_code,sales_purchases');
                 $this->db->where('id', $id);
                 $this->db->where('payment_type', $payment_type);
                 $this->db->where('sales_purchases', $sales_purchases);
@@ -865,7 +865,7 @@
             }
             else 
             {
-                $this->db->select('id,name,phone,id_no,date,attach_recepit,phone,country_code,item_list,amount,sales_purchases');
+                $this->db->select('id,name,phone,id_no,date,CONCAT("http://ec2-18-219-231-177.us-east-2.compute.amazonaws.com/upload/",attach_recepit) as attach_recepit,phone,country_code,item_list,amount,sales_purchases');
                 $this->db->where('id', $id);
                 $this->db->where('payment_type', $payment_type);
                 $this->db->where('sales_purchases', $sales_purchases);
@@ -998,8 +998,8 @@
 
         public function business_details_list($id)
         {
-            $timeSQL = "created_at > DATE_SUB(NOW(), INTERVAL 1 MONTH)  AND business_user_id='".$id."'";
-            $timeSQL1 = "created_at > DATE_SUB(NOW(), INTERVAL 1 MONTH)  AND business_user_id='".$id."'";
+            $timeSQL = "date > DATE_SUB(NOW(), INTERVAL 1 MONTH)  AND business_user_id='".$id."'";
+            $timeSQL1 = "date > DATE_SUB(NOW(), INTERVAL 1 MONTH)  AND business_user_id='".$id."'";
             $Sql = "SELECT sales_purchases,payment_type,amount FROM daily_sales_purchases WHERE ".$timeSQL;
             $Result = $this->db->query($Sql)->result_array();
             $amount = 0;
@@ -1170,7 +1170,6 @@
                     $this->db->set('owner_name',$profile['owner_name']);
                     $this->db->set('email',$profile['email']);
                     $this->db->set('image',$profile['image']);
-                    $this->db->set('public_id',$profile['public_id']);
                     $this->db->where('id',$profile['id']);
                     $this->db->where('role',$profile['role']);
                     $update = $this->db->update('business_register');
@@ -1194,7 +1193,6 @@
                     $this->db->set('name',$profile['owner_name']);
                     $this->db->set('email',$profile['email']);
                     $this->db->set('image',$profile['image']);
-                    $this->db->set('public_id',$profile['public_id']);
                     $this->db->where('id',$profile['id']);
                     $this->db->where('role',$profile['role']);
                     $update = $this->db->update('superwiser_register');
